@@ -1,0 +1,3 @@
+﻿<Project>
+  <Import Project="../build/alfred-api.props" />
+</Project>
