@@ -1,0 +1,7 @@
+# ignore all unwanted files of .net core
+bin
+obj
+appsettings.json
+appsettings.Development.json
+.env
+docker-compose.Prodcution.yml
