@@ -52,6 +52,9 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
+// minimal api for status
+app.MapGet("/status", () => "OK");
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
