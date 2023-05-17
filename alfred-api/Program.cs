@@ -53,8 +53,14 @@ builder.Services.AddSwaggerGen();
 var app = builder.Build();
 
 // minimal api for status
-app.MapGet("/api/status", () => "OK");
-
+app.MapGet("/api/status", () =>
+{
+    Console.WriteLine("status called: ok");
+    return Results.Ok(new
+    {
+        status = "ok"
+    });
+});
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
