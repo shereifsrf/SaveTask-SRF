@@ -52,6 +52,14 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
+// database migration
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    var context = services.GetRequiredService<TaskContext>();
+    context.Database.Migrate();
+}
+
 // minimal api for status
 app.MapGet("/api/status", () =>
 {

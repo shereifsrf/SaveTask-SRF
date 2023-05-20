@@ -6,3 +6,4 @@ appsettings.Development.json
 .env
 docker-compose.Production.yml
 *.conf
+*.sh
