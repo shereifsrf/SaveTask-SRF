@@ -44,7 +44,7 @@ const Task = ({ task }: TaskProps) => {
               aria-label="delete"
               size="small"
               onClick={() => {
-                removeTask(task.id);
+                removeTask(task.id ?? "");
               }}
             >
               <DeleteIcon />
