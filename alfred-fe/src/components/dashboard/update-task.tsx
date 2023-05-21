@@ -73,18 +73,20 @@ const UpdateTask = ({ task, open, setOpen }: UpdateTaskProps) => {
 
     let count = 0;
     while (count < 3) {
+      count++;
       const error = await updateTask(updatedTask.id ?? "", {
         ...task,
         ...updatedTask,
       });
       console.log({ error });
       if (error) {
-        count++;
         // wait for 1s before trying again
         await new Promise((resolve) => setTimeout(resolve, 1000));
       } else {
         setErr(undefined);
         setOpen(false);
+        setLoading(false);
+        break;
       }
 
       if (count === 3) {
@@ -92,84 +94,83 @@ const UpdateTask = ({ task, open, setOpen }: UpdateTaskProps) => {
         break;
       }
     }
+    console.log("here");
     setLoading(false);
   };
   return (
     <div>
-      {open && (
-        <Modal
-          open={open}
-          onClose={() => setOpen(false)}
-          aria-labelledby="modal-modal-title"
-          aria-describedby="modal-modal-description"
-        >
-          <form onSubmit={handleSubmit(handleUpdate)}>
-            <Box sx={style}>
-              <Box sx={{ display: "flex", justifyContent: "space-between" }}>
-                <Typography variant="h6" component="h2" id="modal-modal-title">
-                  Update Task
-                </Typography>
-                <Button
-                  onClick={() => {
-                    setOpen(false);
-                  }}
-                >
-                  Close
-                </Button>
-              </Box>
-
-              <TextField
-                variant="outlined"
-                label="Todo"
-                fullWidth
-                {...register("todoName", { required: true })}
-                error={!!errors.todoName}
-                helperText={errors.todoName?.message}
-              />
-              <TextField
-                variant="outlined"
-                label="Notes"
-                multiline
-                fullWidth
-                rows={2}
-                {...register("details")}
-              />
-              <Controller
-                name="dueDate"
-                control={control}
-                render={({}) => (
-                  <BasicDatePicker
-                    label="Due"
-                    format="ddd, DD MMM YYYY hh:mm A"
-                    defaultValue={dayjs(task.dueDate) as any}
-                    onChange={(date) => {
-                      console.log({ date });
-                      setValue("dueDate", date ?? new Date());
-                    }}
-                  />
-                )}
-              />
-              {/* error typography to show error is its not empty */}
-
-              <Typography color="error" variant="body2">
-                {err}
+      <Modal
+        open={open}
+        onClose={() => setOpen(false)}
+        aria-labelledby="modal-modal-title"
+        aria-describedby="modal-modal-description"
+      >
+        <form onSubmit={handleSubmit(handleUpdate)}>
+          <Box sx={style}>
+            <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+              <Typography variant="h6" component="h2" id="modal-modal-title">
+                Update Task
               </Typography>
-
               <Button
-                variant="contained"
-                fullWidth
-                type="submit"
-                disabled={loading}
+                onClick={() => {
+                  setOpen(false);
+                }}
               >
-                Add
-                {loading && (
-                  <CircularProgress sx={{ position: "absolute" }} size={20} />
-                )}
+                Close
               </Button>
             </Box>
-          </form>
-        </Modal>
-      )}
+
+            <TextField
+              variant="outlined"
+              label="Todo"
+              fullWidth
+              {...register("todoName", { required: true })}
+              error={!!errors.todoName}
+              helperText={errors.todoName?.message}
+            />
+            <TextField
+              variant="outlined"
+              label="Notes"
+              multiline
+              fullWidth
+              rows={2}
+              {...register("details")}
+            />
+            <Controller
+              name="dueDate"
+              control={control}
+              render={({}) => (
+                <BasicDatePicker
+                  label="Due"
+                  format="ddd, DD MMM YYYY hh:mm A"
+                  defaultValue={dayjs(task.dueDate) as any}
+                  onChange={(date) => {
+                    console.log({ date });
+                    setValue("dueDate", date ?? new Date());
+                  }}
+                />
+              )}
+            />
+            {/* error typography to show error is its not empty */}
+
+            <Typography color="error" variant="body2">
+              {err}
+            </Typography>
+
+            <Button
+              variant="contained"
+              fullWidth
+              type="submit"
+              disabled={loading}
+            >
+              Add
+              {loading && (
+                <CircularProgress sx={{ position: "absolute" }} size={20} />
+              )}
+            </Button>
+          </Box>
+        </form>
+      </Modal>
     </div>
   );
 };
