@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { useTaskStore } from "../../store/store";
 import { useLocation, useNavigate } from "react-router-dom";
 import {
   Avatar,
@@ -13,6 +12,7 @@ import {
 import { PersonAdd } from "@mui/icons-material";
 import { useForm, Resolver } from "react-hook-form";
 import LoginFooter from "./login-footer";
+import useUserStore from "../../store/user-store";
 
 type registerForm = {
   username: string;
@@ -72,7 +72,7 @@ const Register = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<String | undefined>();
 
-  const registerUser = useTaskStore((state) => state.register);
+  const registerUser = useUserStore((state) => state.register);
   const {
     handleSubmit,
     register,

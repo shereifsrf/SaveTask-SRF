@@ -1,13 +1,34 @@
-import { Box, Button, TextField, Typography } from "@mui/material";
+import {
+  Box,
+  Button,
+  CircularProgress,
+  TextField,
+  Typography,
+} from "@mui/material";
 import { TaskModel, defaultTask } from "../../models/task";
-import { useTaskStore } from "../../store/store";
+import { useTaskStore } from "../../store/task-store";
 import { useForm, Controller } from "react-hook-form";
 import BasicDatePicker from "../input/date-picker";
 import dayjs from "dayjs";
 import { useState } from "react";
 
+const resolver = async (values: TaskModel) => {
+  return {
+    values: values.todoName.length > 0 ? values : {},
+    errors: !values.todoName
+      ? {
+          todoName: {
+            type: "required",
+            message: "Todo is required",
+          },
+        }
+      : {},
+  };
+};
+
 const AddTask = () => {
   const [err, setErr] = useState<String | undefined>();
+  const [loading, setLoading] = useState(false);
 
   const addTask = useTaskStore((state) => state.addTask);
   const {
@@ -19,17 +40,18 @@ const AddTask = () => {
     control,
   } = useForm<TaskModel>({
     defaultValues: defaultTask,
+    resolver,
   });
 
   const addNewTask = async (task: TaskModel) => {
+    setLoading(true);
+    setErr(undefined);
     task.id = Date.now().toString();
     // if response has error, then try again after 1s
 
     let count = 0;
-    while (count < 2) {
-      console.log("trying to add task");
+    while (count < 3) {
       const error = await addTask(task);
-      console.log("added task");
       console.log({ error });
       if (error) {
         count++;
@@ -47,6 +69,7 @@ const AddTask = () => {
     }
 
     reset(defaultTask);
+    setLoading(false);
   };
 
   return (
@@ -54,8 +77,9 @@ const AddTask = () => {
     <form onSubmit={handleSubmit(addNewTask)}>
       <Box
         sx={{
-          display: "flex",
+          height: "100%",
           flexDirection: "column",
+          display: "flex",
           gap: 2,
           boxShadow: 1,
           p: 2,
@@ -63,15 +87,12 @@ const AddTask = () => {
         }}
       >
         <TextField
-          required
           variant="outlined"
           label="Todo"
           fullWidth
           {...register("todoName", { required: true })}
           error={!!errors.todoName}
-          helperText={
-            errors.todoName?.type === "required" && "Name is required"
-          }
+          helperText={errors.todoName?.message}
         />
         <TextField
           variant="outlined"
@@ -96,15 +117,18 @@ const AddTask = () => {
             />
           )}
         />
-
-        <Button variant="contained" fullWidth type="submit">
-          Add
-        </Button>
         {/* error typography to show error is its not empty */}
 
         <Typography color="error" variant="body2">
           {err}
         </Typography>
+
+        <Button variant="contained" fullWidth type="submit" disabled={loading}>
+          Add
+          {loading && (
+            <CircularProgress sx={{ position: "absolute" }} size={20} />
+          )}
+        </Button>
       </Box>
     </form>
   );

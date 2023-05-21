@@ -60,7 +60,7 @@ public class TodosController : ControllerBase
 
         await _todoService.UpdateAsync(id, updateTodo);
 
-        return NoContent();
+        return Ok(updateTodo);
     }
 
     [HttpDelete("{id:length(24)}")]
@@ -76,6 +76,6 @@ public class TodosController : ControllerBase
 
         await _todoService.RemoveAsync(id);
 
-        return NoContent();
+        return Ok();
     }
 }

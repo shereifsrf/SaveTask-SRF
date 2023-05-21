@@ -3,7 +3,7 @@ import Grid from "@mui/material/Grid";
 import { ShowTasks } from "./show-tasks";
 import AddTask from "./add-task";
 import { useLayoutEffect } from "react";
-import { useTaskStore } from "../../store/store";
+import { useTaskStore } from "../../store/task-store";
 
 function Dashboard() {
   const { getTasks } = useTaskStore((state) => state);
@@ -14,18 +14,18 @@ function Dashboard() {
       await getTasks();
     })();
   }, []);
+
   return (
     <Container
-      maxWidth="xl"
       sx={{
         mt: 2,
       }}
     >
       <Grid container spacing={2}>
-        <Grid item md={4}>
+        <Grid item xs={12} sm={4}>
           <AddTask />
         </Grid>
-        <Grid item md={8}>
+        <Grid item xs={12} sm={8}>
           <ShowTasks />
         </Grid>
       </Grid>

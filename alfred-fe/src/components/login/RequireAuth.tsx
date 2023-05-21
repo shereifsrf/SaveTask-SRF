@@ -1,8 +1,8 @@
-import { useTaskStore } from "../../store/store";
 import { useLocation, Outlet, Navigate } from "react-router-dom";
+import useUserStore from "../../store/user-store";
 
 const RequireAuth = () => {
-  const user = useTaskStore((state) => state.user);
+  const user = useUserStore((state) => state.user);
   const location = useLocation();
 
   return user.isLogged ? (

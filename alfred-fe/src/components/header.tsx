@@ -3,14 +3,14 @@ import Box from "@mui/material/Box";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
-import { useTaskStore } from "../store/store";
 import { useNavigate } from "react-router-dom";
 import { capitalize } from "../util/helper";
+import useUserStore from "../store/user-store";
 
 const Header = () => {
-  const isLoggedIn = useTaskStore((state) => state.user.isLogged);
-  const logout = useTaskStore((state) => state.logout);
-  const user = useTaskStore((state) => state.user);
+  const isLoggedIn = useUserStore((state) => state.user.isLogged);
+  const logout = useUserStore((state) => state.logout);
+  const user = useUserStore((state) => state.user);
   const navigate = useNavigate();
 
   const handleLogin = () => {

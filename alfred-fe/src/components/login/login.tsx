@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { useTaskStore } from "../../store/store";
 import { useLocation, useNavigate } from "react-router-dom";
 import {
   Avatar,
@@ -13,6 +12,7 @@ import {
 import { LockOutlined } from "@mui/icons-material";
 import { useForm, Resolver } from "react-hook-form";
 import LoginFooter from "./login-footer";
+import useUserStore from "../../store/user-store";
 
 type loginForm = {
   username: string;
@@ -45,7 +45,7 @@ const Login = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<String | undefined>();
 
-  const login = useTaskStore((state) => state.login);
+  const login = useUserStore((state) => state.login);
   const {
     handleSubmit,
     register,

@@ -1,7 +1,7 @@
 import { Avatar, Box, Button, TextField, Typography } from "@mui/material";
 import { useLocation, useNavigate } from "react-router-dom";
-import { useTaskStore } from "../../store/store";
 import { useForm, Resolver } from "react-hook-form";
+import useUserStore from "../../store/user-store";
 
 type guestForm = {
   guestName: string;
@@ -33,7 +33,7 @@ const Guest = () => {
   const location = useLocation();
   const nagivate = useNavigate();
   const from = location.state?.from?.pathname || "/";
-  const login = useTaskStore((state) => state.guestLogin);
+  const login = useUserStore((state) => state.guestLogin);
 
   const handleLogin = (form: guestForm) => {
     // console.log({ form });

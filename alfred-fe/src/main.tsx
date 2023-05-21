@@ -8,6 +8,7 @@ import Header from "./components/header";
 import Guest from "./components/login/guest";
 import Register from "./components/login/register";
 import { CssBaseline } from "@mui/material";
+import Footer from "./components/footer";
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <>
@@ -24,5 +25,6 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
         <Route path="register" element={<Register />} />
       </Routes>
     </BrowserRouter>
+    <Footer />
   </>
 );

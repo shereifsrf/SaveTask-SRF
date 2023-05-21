@@ -1,6 +1,6 @@
 import { Box } from "@mui/material";
 import Task from "./task";
-import { useTaskStore } from "../../store/store";
+import { useTaskStore } from "../../store/task-store";
 
 export function ShowTasks() {
   const tasks = useTaskStore((state) => state.tasks);
