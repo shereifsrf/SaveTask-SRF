@@ -8,7 +8,6 @@ import {
   CircularProgress,
   TextField,
   Typography,
-  CssBaseline,
   Container,
 } from "@mui/material";
 import { PersonAdd } from "@mui/icons-material";
@@ -90,7 +89,7 @@ const Register = () => {
   const handleRegister = async (form: registerForm) => {
     setIsLoading(true);
     setError("");
-    const err = await registerUser(form.username, form.email, form.password);
+    const err = await registerUser(form.username, form.password, form.email);
     if (!err) {
       nagivate(from, { replace: true });
       return;
@@ -111,7 +110,6 @@ const Register = () => {
           alignItems: "center",
         }}
       >
-        <CssBaseline />
         <Avatar
           sx={{
             m: 1,

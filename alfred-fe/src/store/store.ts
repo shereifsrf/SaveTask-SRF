@@ -2,7 +2,8 @@ import { create } from "zustand";
 import { TaskModel } from "../models/task";
 import { devtools, persist } from "zustand/middleware";
 import { UserModel, defaultUser } from "../models/user";
-import { userAPI, todoAPI } from "../util/api";
+import userAPI from "../util/apis/user-api";
+import todoAPI from "../util/apis/todo-api";
 
 interface TaskState {
   // task is a map of TaskModel
@@ -19,8 +20,8 @@ interface TaskState {
 
   tasks: Array<TaskModel>;
   getTasks: () => Promise<void>;
-  addTask: (task: TaskModel) => void;
-  removeTask: (id: number) => void;
+  addTask: (task: TaskModel) => Promise<String | undefined>;
+  removeTask: (id: string) => void;
   updateTask: (task: TaskModel) => void;
 }
 
@@ -66,10 +67,21 @@ const useTaskStore = create<TaskState>()(
 
         tasks: [],
         getTasks: async () => {
-          await todoAPI.getTodos(useTaskStore.getState().user);
-          console.log("get tasks");
+          const tasks = await todoAPI.getTodos(useTaskStore.getState().user);
+          set(() => ({ tasks: tasks }));
         },
-        addTask: (task) => set((state) => ({ tasks: [...state.tasks, task] })),
+        addTask: async (task) => {
+          const response = await todoAPI.addTodo(
+            useTaskStore.getState().user,
+            task
+          );
+          console.log("store:", { response });
+          if (response) {
+            set((state) => ({ tasks: [...state.tasks, task] }));
+            return undefined;
+          }
+          return "Error adding task";
+        },
         removeTask: (id) =>
           set((state) => ({
             tasks: state.tasks.filter((task) => task.id !== id),

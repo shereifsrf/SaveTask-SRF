@@ -37,7 +37,7 @@ public class UserController : ControllerBase
         {
             UserName = user.UserName,
             Email = user.Email,
-            Token = _authService.GenerateToken(user.UserName)
+            Token = _authService.GenerateToken(user.Id)
         };
     }
 
@@ -62,7 +62,7 @@ public class UserController : ControllerBase
         {
             UserName = createUser.UserName,
             Email = createUser.Email,
-            Token = _authService.GenerateToken(createUser.UserName)
+            Token = _authService.GenerateToken(createUser.Id)
         };
     }
 }

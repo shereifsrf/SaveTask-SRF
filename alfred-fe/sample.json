@@ -1,0 +1,22 @@
+[
+  {
+    "id": "6468a6e90b1305425c4b538d",
+    "todoName": "todo 1",
+    "userID": 1,
+    "details": "asdfasdfasdfas",
+    "dueDate": "2023-05-20T10:53:13.995Z",
+    "createdAt": "2023-05-20T10:53:13.995Z",
+    "completedAt": "2023-05-20T10:53:13.995Z",
+    "isCompleted": true
+  },
+  {
+    "id": "6468a8d30b1305425c4b538f",
+    "todoName": "todo 233",
+    "userID": 1,
+    "details": "asdfasdfasdfas",
+    "dueDate": "2023-05-20T10:53:13.995Z",
+    "createdAt": "2023-05-20T10:53:13.995Z",
+    "completedAt": "2023-05-20T10:53:13.995Z",
+    "isCompleted": true
+  }
+]

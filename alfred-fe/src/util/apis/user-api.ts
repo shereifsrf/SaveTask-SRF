@@ -1,4 +1,4 @@
-import { UserModel } from "../models/user";
+import { UserModel } from "../../models/user";
 import axios from "axios";
 
 const server = import.meta.env.VITE_SERVER_URL;
@@ -26,10 +26,6 @@ interface userAPI {
     email: string
   ) => Promise<userResponse>;
   guestLogin: (guestName: string) => void;
-}
-
-interface todoAPI {
-  getTodos: (user: UserModel) => Promise<void>;
 }
 
 // login user
@@ -110,22 +106,4 @@ const userAPI: userAPI = {
   },
 };
 
-const todoAPI: todoAPI = {
-  getTodos: async (user) => {
-    try {
-      // add header from user
-      var response = await axios.get(`${server}/todos`, {
-        headers: {
-          Authorization: `Bearer ${user.token?.token}`,
-        },
-      });
-      if (response.status === 200) {
-        console.log(response.data);
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  },
-};
-
-export { userAPI, todoAPI };
+export default userAPI;

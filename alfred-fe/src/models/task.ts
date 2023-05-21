@@ -1,7 +1,7 @@
 type TaskModel = {
-  id: number;
-  name: string;
-  description: string;
+  id?: string;
+  todoName: string;
+  details: string;
   isCompleted: boolean;
   createdAt: Date;
   dueDate: Date;
@@ -10,9 +10,9 @@ type TaskModel = {
 
 const defaultTask: TaskModel = {
   // unique id
-  id: Date.now(),
-  name: "",
-  description: "",
+  id: Date.now().toString(),
+  todoName: "",
+  details: "",
   isCompleted: false,
   completedAt: new Date(),
   createdAt: new Date(),

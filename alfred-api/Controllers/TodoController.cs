@@ -15,13 +15,18 @@ public class TodosController : ControllerBase
         _todoService = todoService;
 
     [HttpGet]
-    public async Task<List<TodoModel>> Get() =>
-        await _todoService.GetAsync();
+    public async Task<List<TodoModel>> Get()
+    {
+        var userID = int.Parse(User.Claims.FirstOrDefault(x => x.Type == "user-id")?.Value ?? "0");
+        return await _todoService.GetAsync(userID);
+    }
 
     [HttpGet("{id:length(24)}")]
     public async Task<ActionResult<TodoModel>> Get(string id)
     {
-        var todo = await _todoService.GetAsync(id);
+        // get the username from the token
+        var userID = int.Parse(User.Claims.FirstOrDefault(x => x.Type == "user-id")?.Value ?? "0");
+        var todo = await _todoService.GetAsync(id, userID);
 
         if (todo is null)
         {
@@ -30,10 +35,11 @@ public class TodosController : ControllerBase
 
         return todo;
     }
-
     [HttpPost]
     public async Task<IActionResult> Post(TodoModel newTodo)
     {
+        var userID = int.Parse(User.Claims.FirstOrDefault(x => x.Type == "user-id")?.Value ?? "0");
+        newTodo.userID = userID;
         await _todoService.CreateAsync(newTodo);
 
         return CreatedAtAction(nameof(Get), new { id = newTodo.Id }, newTodo);
@@ -42,7 +48,8 @@ public class TodosController : ControllerBase
     [HttpPut("{id:length(24)}")]
     public async Task<IActionResult> Update(string id, TodoModel updateTodo)
     {
-        var todo = await _todoService.GetAsync(id);
+        var userID = int.Parse(User.Claims.FirstOrDefault(x => x.Type == "user-id")?.Value ?? "0");
+        var todo = await _todoService.GetAsync(id, userID);
 
         if (todo is null)
         {
@@ -59,7 +66,8 @@ public class TodosController : ControllerBase
     [HttpDelete("{id:length(24)}")]
     public async Task<IActionResult> Delete(string id)
     {
-        var book = await _todoService.GetAsync(id);
+        var userID = int.Parse(User.Claims.FirstOrDefault(x => x.Type == "user-id")?.Value ?? "0");
+        var book = await _todoService.GetAsync(id, userID);
 
         if (book is null)
         {

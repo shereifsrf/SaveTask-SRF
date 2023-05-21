@@ -22,11 +22,11 @@ public class TodoService
             todoMongoDBSettings.Value.TodoCollectionName);
     }
 
-    public async Task<List<TodoModel>> GetAsync() =>
-        await _todoCollection.Find(_ => true).ToListAsync();
+    public async Task<List<TodoModel>> GetAsync(int userID) =>
+        await _todoCollection.Find(x => x.userID == userID).ToListAsync();
 
-    public async Task<TodoModel?> GetAsync(string id) =>
-        await _todoCollection.Find(x => x.Id == id).FirstOrDefaultAsync();
+    public async Task<TodoModel?> GetAsync(string id, int userID) =>
+        await _todoCollection.Find(x => x.Id == id && x.userID == userID).FirstOrDefaultAsync();
 
     public async Task CreateAsync(TodoModel newTodo) =>
         await _todoCollection.InsertOneAsync(newTodo);

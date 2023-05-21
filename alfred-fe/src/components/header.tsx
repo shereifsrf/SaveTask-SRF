@@ -36,7 +36,7 @@ const Header = () => {
               {capitalize(user.name)}
             </Typography>
             <Button color="inherit" onClick={handleLogin}>
-              {isLoggedIn ? "Logout" : "Login"}
+              {isLoggedIn ? "Logout" : "Acount"}
             </Button>
           </Box>
         </Toolbar>

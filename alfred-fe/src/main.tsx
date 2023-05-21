@@ -8,9 +8,11 @@ import RequireAuth from "./components/login/RequireAuth";
 import Header from "./components/header";
 import Guest from "./components/login/guest";
 import Register from "./components/login/register";
+import { CssBaseline } from "@mui/material";
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
-  <React.StrictMode>
+  <>
+    <CssBaseline />
     <BrowserRouter>
       <Header />
       <Routes>
@@ -23,5 +25,5 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
         <Route path="register" element={<Register />} />
       </Routes>
     </BrowserRouter>
-  </React.StrictMode>
+  </>
 );

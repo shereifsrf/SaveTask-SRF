@@ -9,12 +9,12 @@ namespace alfred_api.Services;
 
 public interface IAuthService
 {
-    TokenDTO GenerateToken(string userName);
+    TokenDTO GenerateToken(int userID);
 }
 
 public class AuthService : IAuthService
 {
-    public TokenDTO GenerateToken(string userName)
+    public TokenDTO GenerateToken(int userID)
     {
         var jwt = new JwtSecurityTokenHandler();
         // get key from env
@@ -22,9 +22,9 @@ public class AuthService : IAuthService
 
         var tokenDescriptor = new SecurityTokenDescriptor
         {
-            Subject = new ClaimsIdentity(new Claim[]
+            Subject = new ClaimsIdentity(new Claim[]            
             {
-                new Claim(ClaimTypes.Name, userName)
+                new Claim("user-id", userID.ToString()),
             }),
             Expires = DateTime.UtcNow.AddHours(1),
             SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)

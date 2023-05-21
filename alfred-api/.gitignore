@@ -4,6 +4,6 @@ obj
 appsettings.json
 appsettings.Development.json
 .env
-docker-compose.Production.yml
+docker-compose*
 *.conf
 *.sh

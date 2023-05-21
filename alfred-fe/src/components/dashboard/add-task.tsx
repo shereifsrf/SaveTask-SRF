@@ -1,11 +1,14 @@
-import { Box, Button, TextField } from "@mui/material";
+import { Box, Button, TextField, Typography } from "@mui/material";
 import { TaskModel, defaultTask } from "../../models/task";
 import { useTaskStore } from "../../store/store";
 import { useForm, Controller } from "react-hook-form";
 import BasicDatePicker from "../input/date-picker";
 import dayjs from "dayjs";
+import { useState } from "react";
 
 const AddTask = () => {
+  const [err, setErr] = useState<String | undefined>();
+
   const addTask = useTaskStore((state) => state.addTask);
   const {
     register,
@@ -18,9 +21,31 @@ const AddTask = () => {
     defaultValues: defaultTask,
   });
 
-  const addNewTask = (task: TaskModel) => {
-    task.id = Date.now();
-    addTask(task);
+  const addNewTask = async (task: TaskModel) => {
+    task.id = Date.now().toString();
+    // if response has error, then try again after 1s
+
+    let count = 0;
+    while (count < 2) {
+      console.log("trying to add task");
+      const error = await addTask(task);
+      console.log("added task");
+      console.log({ error });
+      if (error) {
+        count++;
+        // wait for 1s before trying again
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+      } else {
+        setErr(undefined);
+        break;
+      }
+
+      if (count === 3) {
+        setErr(error);
+        break;
+      }
+    }
+
     reset(defaultTask);
   };
 
@@ -42,9 +67,11 @@ const AddTask = () => {
           variant="outlined"
           label="Todo"
           fullWidth
-          {...register("name", { required: true })}
-          error={!!errors.name}
-          helperText={errors.name?.type === "required" && "Name is required"}
+          {...register("todoName", { required: true })}
+          error={!!errors.todoName}
+          helperText={
+            errors.todoName?.type === "required" && "Name is required"
+          }
         />
         <TextField
           variant="outlined"
@@ -52,20 +79,8 @@ const AddTask = () => {
           multiline
           fullWidth
           rows={2}
-          {...register("description")}
+          {...register("details")}
         />
-        {/* <TextField
-          variant="outlined"
-          label="Due"
-          type="date"
-          fullWidth
-          InputLabelProps={{ shrink: true }}
-          defaultValue={defaultTask.dueDate?.toISOString().split("T")[0]}
-          onChange={(e) => {
-            console.log(e.target.value);
-            setValue("dueDate", new Date(e.target.value));
-          }}
-        /> */}
         <Controller
           name="dueDate"
           control={control}
@@ -85,6 +100,11 @@ const AddTask = () => {
         <Button variant="contained" fullWidth type="submit">
           Add
         </Button>
+        {/* error typography to show error is its not empty */}
+
+        <Typography color="error" variant="body2">
+          {err}
+        </Typography>
       </Box>
     </form>
   );

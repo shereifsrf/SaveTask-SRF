@@ -10,11 +10,9 @@ function Dashboard() {
 
   // use layout effect to get tasks from server as async
   useLayoutEffect(() => {
-    console.log("use layout effect");
     (async () => {
       await getTasks();
     })();
-    console.log("get tasks done");
   }, []);
   return (
     <Container

@@ -9,8 +9,8 @@ type loginFooterProps = {
 const LoginFooter = ({ isLogin }: loginFooterProps) => {
   const routeTo = isLogin ? "/register" : "/login";
   const text = isLogin
-    ? "Have account? Login here"
-    : "No account? Register here";
+    ? "No account? Register here"
+    : "Have account? Login here";
 
   return (
     <Stack direction="row" justifyContent="space-between">

@@ -28,8 +28,8 @@ const Task = ({ task }: TaskProps) => {
       >
         <Grid container spacing={2}>
           <Grid item md={9}>
-            <Typography variant="h5">{task.name ?? ""}</Typography>
-            <Typography>{task.description ?? ""}</Typography>
+            <Typography variant="h5">{task.todoName ?? ""}</Typography>
+            <Typography>{task.details ?? ""}</Typography>
           </Grid>
           <Grid item md={2}>
             <Typography>
