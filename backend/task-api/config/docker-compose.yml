@@ -1,0 +1,28 @@
+version: "3.7"
+
+services:
+  mongoDB:
+    image: mongo:latest
+    container_name: mongoDB
+    restart: always
+    ports:
+      - ${MONGO_DB_PORT}:${MONGO_DB_PORT}
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_DB_USER}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_DB_PASS}
+      MONGO_INITDB_DATABASE: ${MONGO_DB_NAME}
+    volumes:
+      - mongoDBVolume:/data/db
+      - ./dev:/replica-set-key
+    command: >
+      bin/bash -c '
+        echo "Waiting for MongoDB";
+        sleep 2;
+        echo "Start graceful wait";
+        chown root:root /replica-set-key/some.key;
+        chmod 400 /replica-set-key/some.key;
+        mongod --keyFile /replica-set-key/some.key --replSet rs0 --bind_ip_all;
+        echo "End graceful wait";
+      '
+volumes:
+  mongoDBVolume:
