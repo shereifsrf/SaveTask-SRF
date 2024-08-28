@@ -19,9 +19,10 @@ services:
         echo "Waiting for MongoDB";
         sleep 2;
         echo "Start graceful wait";
-        chown root:root /replica-set-key/some.key;
-        chmod 400 /replica-set-key/some.key;
-        mongod --keyFile /replica-set-key/some.key --replSet rs0 --bind_ip_all;
+        cp /replica-set-key/some.key /replica.key;
+        chown root:root /replica.key;
+        chmod 400 /replica.key;
+        mongod --keyFile /replica.key --replSet rs0 --bind_ip_all;
         echo "End graceful wait";
       '
 volumes:

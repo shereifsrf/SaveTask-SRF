@@ -22,7 +22,7 @@ func InitMongoDB() {
 		Password: common.Env.MONGO_DB_PASS,
 	}
 
-	host := fmt.Sprintf("%s:%s", common.MONGO_DB_HOST, common.MONGO_DB_PORT)
+	host := fmt.Sprintf("%s:%s", common.Env.MONGO_DB_HOST, common.Env.MONGO_DB_PORT)
 
 	client, err := mongo.Connect(
 		ctx,
