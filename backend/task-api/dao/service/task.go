@@ -27,7 +27,7 @@ type taskService struct {
 }
 
 func (ts *taskService) ListTask(ctx context.Context) ([]model.Task, error) {
-	cursor, err := ts.taskCollection.Find(ctx, nil)
+	cursor, err := ts.taskCollection.Find(ctx, primitive.M{})
 	if err != nil {
 		return nil, err
 	}

@@ -3,7 +3,7 @@
 import { z } from "zod";
 import { FieldError, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { forwardRef } from "react";
+import React, { forwardRef } from "react";
 import { addTask } from "../action/task";
 
 const TaskFormSchema = z.object({
@@ -45,6 +45,7 @@ function TaskForm() {
       <Input
         {...register("description")}
         placeholder="Description"
+        multiline
         error={errors.description}
       />
       <Input
@@ -65,20 +66,30 @@ function TaskForm() {
   );
 }
 
-interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
+interface InputProps
+  extends React.InputHTMLAttributes<HTMLInputElement | HTMLTextAreaElement> {
   error?: FieldError;
+  multiline?: boolean;
 }
 
-const Input = forwardRef<HTMLInputElement, InputProps>((props, ref) => {
-  return (
-    <div className="w-full">
-      <input {...props} className="w-full" ref={ref} />
-      {props.error && (
-        <p className="text-[15px] text-red-500">{props.error.message}</p>
-      )}
-    </div>
-  );
-});
+const Input = forwardRef<HTMLInputElement | HTMLTextAreaElement, InputProps>(
+  ({ multiline, error, ...props }, ref) => {
+    return (
+      <div className="w-full">
+        {multiline ? (
+          <textarea {...props} ref={ref as React.Ref<HTMLTextAreaElement>} />
+        ) : (
+          <input
+            {...props}
+            className="w-full"
+            ref={ref as React.Ref<HTMLInputElement>}
+          />
+        )}
+        {error && <p className="text-[15px] text-red-500">{error.message}</p>}
+      </div>
+    );
+  }
+);
 Input.displayName = "Input";
 
 export default TaskForm;

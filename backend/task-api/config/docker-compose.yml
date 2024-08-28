@@ -12,7 +12,7 @@ services:
       MONGO_INITDB_ROOT_PASSWORD: ${MONGO_DB_PASS}
       MONGO_INITDB_DATABASE: ${MONGO_DB_NAME}
     volumes:
-      - mongoDBVolume:/data/db
+      - savetask-mongoDBVolume:/data/db
       - ./dev:/replica-set-key
     command: >
       bin/bash -c '
@@ -26,4 +26,4 @@ services:
         echo "End graceful wait";
       '
 volumes:
-  mongoDBVolume:
+  savetask-mongoDBVolume:

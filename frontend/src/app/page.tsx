@@ -9,7 +9,7 @@ export default function Home() {
           <div className="">
             <TaskForm />
           </div>
-          <div className="">
+          <div className="bg-slate-300 w-full px-2 rounded-lg">
             <ShowTasks />
           </div>
         </div>
