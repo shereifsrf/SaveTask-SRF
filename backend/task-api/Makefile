@@ -8,6 +8,9 @@ dev:
 dc:
 	docker-compose -f config/docker-compose.yml --env-file config/.env up
 
+dc-down:
+	docker-compose -f config/docker-compose.yml --env-file config/.env down
+
 replica-key:
 	openssl rand -base64 756 > config/dev/some.key
 

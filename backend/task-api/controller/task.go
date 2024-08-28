@@ -3,7 +3,6 @@ package controller
 import (
 	"shereifsrf/SaveTask-SRF/task-api/dao/model"
 	"shereifsrf/SaveTask-SRF/task-api/dao/service"
-	"time"
 
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -39,8 +38,6 @@ func (t *taskController) addTask(c *gin.Context) {
 		c.JSON(400, gin.H{"error": err.Error()})
 		return
 	}
-
-	task.Date = time.Now()
 
 	err := t.ts.AddTask(c, task)
 	if err != nil {
