@@ -9,9 +9,12 @@ import { TaskModel, TaskStatus } from "../model/task";
 import { helper } from "../util/helper";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+import EditIcon from "../icons/EditIcon";
+import { useTask } from "./App";
 
 const Task = ({ task }: { task: TaskModel }) => {
   const queryClient = useQueryClient();
+  const { setSelected } = useTask();
 
   const { attributes, listeners, setNodeRef, transform, transition } =
     useSortable({
@@ -54,6 +57,9 @@ const Task = ({ task }: { task: TaskModel }) => {
       <div className="flex justify-between">
         <p className="whitespace-pre-line pl-2">{task.description}</p>
         <div className="flex items-end">
+          <button onClick={() => setSelected(task)}>
+            <EditIcon />
+          </button>
           <button onClick={handleDeleteTask}>
             <DeleteIcon />
           </button>

@@ -3,10 +3,11 @@
 import { z } from "zod";
 import { FieldError, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import React, { forwardRef } from "react";
+import React, { forwardRef, useEffect } from "react";
 import { addTask } from "../action/task";
-import { helper } from "../util/helper";
+import { DateFormat, helper } from "../util/helper";
 import { useQueryClient } from "@tanstack/react-query";
+import { useTask } from "./App";
 
 const TaskFormSchema = z.object({
   name: z.string().min(5),
@@ -16,19 +17,31 @@ const TaskFormSchema = z.object({
 type TaskFormSchemaType = z.infer<typeof TaskFormSchema>;
 
 function TaskForm() {
+  const { selected } = useTask();
+
   const {
     register,
     handleSubmit,
+    reset,
     formState: { errors },
   } = useForm<TaskFormSchemaType>({
     resolver: zodResolver(TaskFormSchema),
     defaultValues: {
       name: "",
       description: "",
-      date: new Date().toISOString().split("T")[0],
+      date: helper.formatDate(new Date().toISOString(), DateFormat.yyyyMMdd),
     },
   });
   const queryClient = useQueryClient();
+
+  useEffect(() => {
+    if (selected === undefined) return;
+    reset({
+      name: selected.name,
+      description: selected.description,
+      date: helper.formatDate(selected.date, DateFormat.yyyyMMdd),
+    });
+  }, [selected, reset]);
 
   const handleSuccess = async (data: TaskFormSchemaType) => {
     console.log(data);
