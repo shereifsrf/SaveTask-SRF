@@ -8,6 +8,12 @@ import { addTask } from "../action/task";
 import { DateFormat, helper } from "../util/helper";
 import { useQueryClient } from "@tanstack/react-query";
 import { useTask } from "./App";
+import ResetIcon from "../icons/ResetIcon";
+
+enum FormAction {
+  Add = "Add",
+  Edit = "Edit",
+}
 
 const TaskFormSchema = z.object({
   name: z.string().min(5),
@@ -18,6 +24,7 @@ type TaskFormSchemaType = z.infer<typeof TaskFormSchema>;
 
 function TaskForm() {
   const { selected } = useTask();
+  const action = selected ? FormAction.Edit : FormAction.Add;
 
   const {
     register,
@@ -78,12 +85,18 @@ function TaskForm() {
         placeholder="Date"
         error={errors.date}
       />
-      <div className="w-full p-1">
+      <div className="flex w-full gap-2 p-1">
         <button
           type="submit"
           className="w-full bg-primary ring-secondary ring text-white py-1 rounded-lg"
         >
-          Add Task
+          {action}
+        </button>
+        <button
+          type="submit"
+          className="flex-1 px-1 bg-red-900 w-full bg-primary ring-red-300 ring text-white py-1 rounded-lg"
+        >
+          <ResetIcon />
         </button>
       </div>
     </form>
