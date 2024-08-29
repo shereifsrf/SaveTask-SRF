@@ -4,6 +4,7 @@ export interface TaskModel {
   description: string;
   date: string;
   status: TaskStatus;
+  order: number;
 }
 
 export enum TaskStatus {

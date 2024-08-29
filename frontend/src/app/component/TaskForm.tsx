@@ -5,6 +5,8 @@ import { FieldError, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import React, { forwardRef } from "react";
 import { addTask } from "../action/task";
+import { helper } from "../util/helper";
+import { useQueryClient } from "@tanstack/react-query";
 
 const TaskFormSchema = z.object({
   name: z.string().min(5),
@@ -20,11 +22,19 @@ function TaskForm() {
     formState: { errors },
   } = useForm<TaskFormSchemaType>({
     resolver: zodResolver(TaskFormSchema),
+    defaultValues: {
+      name: "",
+      description: "",
+      date: new Date().toISOString().split("T")[0],
+    },
   });
+  const queryClient = useQueryClient();
 
   const handleSuccess = async (data: TaskFormSchemaType) => {
-    console.log("let call");
+    console.log(data);
     await addTask(data.name, data.description, data.date);
+    console.log("invalidate");
+    queryClient.invalidateQueries({ queryKey: ["tasks"] });
   };
 
   const handleError = (errors: any) => {
@@ -33,7 +43,7 @@ function TaskForm() {
 
   return (
     <form
-      className="flex flex-col justify-center items-center gap-2"
+      className="w-[15rem] sm:w-full flex flex-col gap-2"
       onSubmit={handleSubmit(handleSuccess, handleError)}
     >
       <Input
@@ -51,17 +61,18 @@ function TaskForm() {
       <Input
         {...register("date")}
         type="date"
-        className="w-full"
+        className=""
         placeholder="Date"
         error={errors.date}
       />
-
-      <button
-        type="submit"
-        className="bg-slate-500 text-white px-2 py-1 rounded-lg"
-      >
-        Add Task
-      </button>
+      <div className="w-full p-1">
+        <button
+          type="submit"
+          className="w-full bg-primary ring-secondary ring text-white py-1 rounded-lg"
+        >
+          Add Task
+        </button>
+      </div>
     </form>
   );
 }
@@ -74,14 +85,20 @@ interface InputProps
 
 const Input = forwardRef<HTMLInputElement | HTMLTextAreaElement, InputProps>(
   ({ multiline, error, ...props }, ref) => {
+    const twClass =
+      "w-full rounded-lg p-2 outline-none border-2 focus:border-slate-700";
     return (
-      <div className="w-full">
+      <div className="w-full flex justify-center ">
         {multiline ? (
-          <textarea {...props} ref={ref as React.Ref<HTMLTextAreaElement>} />
+          <textarea
+            className={helper.cn(props.className, twClass)}
+            {...props}
+            ref={ref as React.Ref<HTMLTextAreaElement>}
+          />
         ) : (
           <input
             {...props}
-            className="w-full"
+            className={helper.cn(props.className, twClass)}
             ref={ref as React.Ref<HTMLInputElement>}
           />
         )}

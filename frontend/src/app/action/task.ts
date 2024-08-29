@@ -29,8 +29,6 @@ export const addTask = async (
 
   console.log(response);
 
-  revalidatePath("/");
-
   return response.status === 200;
 };
 
@@ -48,8 +46,6 @@ export const deleteTask = async (id: string) => {
     method: "DELETE",
   });
 
-  revalidatePath("/");
-
   return response.status === 200;
 };
 
@@ -62,7 +58,7 @@ export const updateTask = async (id: string, task: TaskModel) => {
     body: JSON.stringify(task),
   });
 
-  revalidatePath("/");
+  // revalidatePath("/");
 
   return response.status === 200;
 };

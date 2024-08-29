@@ -14,6 +14,7 @@ type Task struct {
 	Description string              `bson:"description" json:"description"`
 	Date        time.Time           `bson:"date" json:"date"`
 	Status      Enum_Status         `bson:"status" json:"status"`
+	Order       float64             `bson:"order" json:"order"`
 	UserID      *primitive.ObjectID `bson:"userId" json:"userId"`
 }
 

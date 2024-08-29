@@ -4,7 +4,9 @@ import (
 	"shereifsrf/SaveTask-SRF/task-api/common"
 	"shereifsrf/SaveTask-SRF/task-api/controller"
 	"shereifsrf/SaveTask-SRF/task-api/dao"
+	"time"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
 
@@ -15,7 +17,6 @@ func main() {
 	defer unSetupModules()
 
 	r := setupRoutes()
-	r.SetTrustedProxies([]string{"localhost"})
 
 	r.Run(":8080")
 }
@@ -23,6 +24,15 @@ func main() {
 func setupRoutes() *gin.Engine {
 	gin.SetMode(common.Env.GIN_MODE)
 	r := gin.Default()
+	r.SetTrustedProxies([]string{"localhost"})
+	r.Use(cors.New(cors.Config{
+		AllowOrigins:     []string{"http://localhost:3000"},
+		AllowMethods:     []string{"GET"},
+		AllowHeaders:     []string{"Origin"},
+		ExposeHeaders:    []string{"Content-Length"},
+		AllowCredentials: true,
+		MaxAge:           12 * time.Hour,
+	}))
 
 	api := r.Group("/api")
 	controller.SetupTaskController(api.Group("/task"))

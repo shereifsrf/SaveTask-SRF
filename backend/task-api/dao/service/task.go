@@ -7,6 +7,7 @@ import (
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 type ITask interface {
@@ -27,7 +28,10 @@ type taskService struct {
 }
 
 func (ts *taskService) ListTask(ctx context.Context) ([]model.Task, error) {
-	cursor, err := ts.taskCollection.Find(ctx, primitive.M{})
+	// sort by desc order
+	opts := options.Find().SetSort(primitive.D{{Key: "order", Value: -1}})
+
+	cursor, err := ts.taskCollection.Find(ctx, primitive.M{}, opts)
 	if err != nil {
 		return nil, err
 	}
