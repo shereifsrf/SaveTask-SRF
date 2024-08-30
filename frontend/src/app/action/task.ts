@@ -9,8 +9,6 @@ export const addTask = async (
   description: string,
   date: string
 ) => {
-  console.log(url);
-  //   change date string to be dd-mm-yyyy
   const dateC = new Date(date);
   //
   // call post method to url to add task using fetch
@@ -50,6 +48,9 @@ export const deleteTask = async (id: string) => {
 };
 
 export const updateTask = async (id: string, task: TaskModel) => {
+  const dateC = new Date(task.date);
+  task.date = dateC.toISOString();
+
   const response = await fetch(`${url}/api/task/${id}`, {
     method: "PUT",
     headers: {

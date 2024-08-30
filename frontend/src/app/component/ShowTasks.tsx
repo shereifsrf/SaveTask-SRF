@@ -12,7 +12,7 @@ import {
   useSensor,
   useSensors,
 } from "@dnd-kit/core";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import {
   arrayMove,
   SortableContext,
@@ -71,13 +71,11 @@ function ShowTasks() {
       (isUpwards && overIdx !== 0) ||
       (!isUpwards && overIdx !== items.length - 1)
     ) {
-      console.log("not end items");
       // get the prev item of over
       prevOverOrder = isUpwards
         ? items[overIdx - 1].order
         : items[overIdx + 1].order;
     } else {
-      console.log("end items");
       if (isUpwards) prevOverOrder = Math.ceil(over.order);
       else prevOverOrder = Math.floor(over.order);
     }
@@ -89,12 +87,6 @@ function ShowTasks() {
       ((isUpwards && prevOverOrder <= order) ||
         (!isUpwards && prevOverOrder >= order))
     ) {
-      console.log(
-        "order is not aligned as prevOver",
-        order,
-        prevOverOrder,
-        over.order
-      );
       order = (over.order + prevOverOrder) / 2;
     }
 

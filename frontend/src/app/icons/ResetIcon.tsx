@@ -5,7 +5,7 @@ function ResetIcon() {
     <svg
       xmlns="http://www.w3.org/2000/svg"
       viewBox="0 0 32 32"
-      stroke-width="2"
+      strokeWidth="2"
       stroke="currentColor"
       className="size-4"
     >

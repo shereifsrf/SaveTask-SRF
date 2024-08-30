@@ -15,9 +15,8 @@ const formatDate = (date: string, format = DateFormat.ddMMyyyy) => {
     const year = dateObj.getFullYear().toString();
     const formattedDate = `${day}/${month}/${year}`;
     return formattedDate;
-  } else if (format === DateFormat.yyyyMMdd) {
-    return date.split("T")[0];
   }
+  return date.split("T")[0];
 };
 
 const cn = (...classes: ClassValue[]) => {

@@ -4,7 +4,7 @@ import { z } from "zod";
 import { FieldError, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import React, { forwardRef, useEffect } from "react";
-import { addTask } from "../action/task";
+import { addTask, updateTask } from "../action/task";
 import { DateFormat, helper } from "../util/helper";
 import { useQueryClient } from "@tanstack/react-query";
 import { useTask } from "./App";
@@ -22,8 +22,14 @@ const TaskFormSchema = z.object({
 });
 type TaskFormSchemaType = z.infer<typeof TaskFormSchema>;
 
+const defaultValues: TaskFormSchemaType = {
+  name: "",
+  description: "",
+  date: helper.formatDate(new Date().toISOString(), DateFormat.yyyyMMdd),
+};
+
 function TaskForm() {
-  const { selected } = useTask();
+  const { selected, setSelected, nameInputRef } = useTask();
   const action = selected ? FormAction.Edit : FormAction.Add;
 
   const {
@@ -33,13 +39,10 @@ function TaskForm() {
     formState: { errors },
   } = useForm<TaskFormSchemaType>({
     resolver: zodResolver(TaskFormSchema),
-    defaultValues: {
-      name: "",
-      description: "",
-      date: helper.formatDate(new Date().toISOString(), DateFormat.yyyyMMdd),
-    },
+    defaultValues,
   });
   const queryClient = useQueryClient();
+  const { ref, ...rest } = register("name");
 
   useEffect(() => {
     if (selected === undefined) return;
@@ -51,8 +54,12 @@ function TaskForm() {
   }, [selected, reset]);
 
   const handleSuccess = async (data: TaskFormSchemaType) => {
-    console.log(data);
-    await addTask(data.name, data.description, data.date);
+    if (action === FormAction.Edit) {
+      await updateTask(selected!.id, {
+        ...selected!,
+        ...data,
+      });
+    } else await addTask(data.name, data.description, data.date);
     console.log("invalidate");
     queryClient.invalidateQueries({ queryKey: ["tasks"] });
   };
@@ -61,13 +68,23 @@ function TaskForm() {
     console.log(errors);
   };
 
+  const handleReset = () => {
+    reset(defaultValues);
+    setSelected(undefined);
+  };
+
   return (
     <form
       className="w-[15rem] sm:w-full flex flex-col gap-2"
       onSubmit={handleSubmit(handleSuccess, handleError)}
     >
       <Input
-        {...register("name")}
+        {...rest}
+        ref={(e) => {
+          ref(e);
+          // @ts-ignore => this works for focus call from another component
+          nameInputRef.current = e;
+        }}
         className=""
         placeholder="Name"
         error={errors.name}
@@ -93,8 +110,9 @@ function TaskForm() {
           {action}
         </button>
         <button
-          type="submit"
-          className="flex-1 px-1 bg-red-900 w-full bg-primary ring-red-300 ring text-white py-1 rounded-lg"
+          type="button"
+          onClick={handleReset}
+          className="flex-1 px-1 bg-orange-900 w-full bg-primary ring-secondary ring text-white py-1 rounded-lg"
         >
           <ResetIcon />
         </button>

@@ -1,7 +1,7 @@
 "use client";
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import React, { createContext, useContext } from "react";
+import React, { createContext, useContext, useRef } from "react";
 import TaskForm from "./TaskForm";
 import ShowTasks from "./ShowTasks";
 import { TaskModel } from "../model/task";
@@ -11,6 +11,8 @@ const queryClient = new QueryClient();
 interface ITask {
   selected: TaskModel | undefined;
   setSelected: React.Dispatch<React.SetStateAction<TaskModel | undefined>>;
+
+  nameInputRef: React.RefObject<HTMLInputElement>;
 }
 
 const TaskContext = createContext({} as ITask);
@@ -18,9 +20,10 @@ export const useTask = () => useContext(TaskContext);
 
 function TaskProvider({ children }: { children: React.ReactNode }) {
   const [selected, setSelected] = React.useState<TaskModel>();
+  const nameInputRef = useRef<HTMLInputElement>(null);
 
   return (
-    <TaskContext.Provider value={{ selected, setSelected }}>
+    <TaskContext.Provider value={{ selected, setSelected, nameInputRef }}>
       {children}
     </TaskContext.Provider>
   );
