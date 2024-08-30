@@ -24,3 +24,9 @@ const (
 	Enum_Status_Pending Enum_Status = "pending"
 	Enum_Status_Done    Enum_Status = "done"
 )
+
+type ListTaskQuery struct {
+	Page   int         `form:"page"`
+	Limit  int         `form:"limit"`
+	Status Enum_Status `form:"status"`
+}

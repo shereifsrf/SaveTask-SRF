@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"shereifsrf/SaveTask-SRF/task-api/common"
 	"shereifsrf/SaveTask-SRF/task-api/dao"
 	"shereifsrf/SaveTask-SRF/task-api/dao/model"
 
@@ -11,7 +12,8 @@ import (
 )
 
 type ITask interface {
-	ListTask(ctx context.Context) ([]model.Task, error)
+	ListTask(ctx context.Context, query model.ListTaskQuery) ([]model.Task, error)
+	GetTask(ctx context.Context, id primitive.ObjectID) (model.Task, error)
 	AddTask(ctx context.Context, task model.Task) error
 	UpdateTask(ctx context.Context, task model.Task) error
 	DeleteTask(ctx context.Context, id primitive.ObjectID) error
@@ -27,11 +29,18 @@ type taskService struct {
 	taskCollection *mongo.Collection
 }
 
-func (ts *taskService) ListTask(ctx context.Context) ([]model.Task, error) {
+func (ts *taskService) ListTask(ctx context.Context, query model.ListTaskQuery) ([]model.Task, error) {
+	filter := primitive.M{}
+	common.Log.Print(query)
+	if query.Status != "" {
+		filter["status"] = query.Status
+	}
+
 	// sort by desc order
 	opts := options.Find().SetSort(primitive.D{{Key: "order", Value: -1}})
+	opts.SetSkip(int64((query.Page - 1) * query.Limit)).SetLimit(int64(query.Limit))
 
-	cursor, err := ts.taskCollection.Find(ctx, primitive.M{}, opts)
+	cursor, err := ts.taskCollection.Find(ctx, filter, opts)
 	if err != nil {
 		return nil, err
 	}
@@ -50,12 +59,19 @@ func (ts *taskService) ListTask(ctx context.Context) ([]model.Task, error) {
 	return tasks, nil
 }
 
-func (ts *taskService) AddTask(ctx context.Context, task model.Task) error {
-	if task.ID == nil {
-		id := primitive.NewObjectID()
-		task.ID = &id
+func (ts *taskService) GetTask(ctx context.Context, id primitive.ObjectID) (model.Task, error) {
+	filter := primitive.M{"_id": id}
+
+	var task model.Task
+	err := ts.taskCollection.FindOne(ctx, filter).Decode(&task)
+	if err != nil {
+		return model.Task{}, err
 	}
 
+	return task, nil
+}
+
+func (ts *taskService) AddTask(ctx context.Context, task model.Task) error {
 	_, err := ts.taskCollection.InsertOne(ctx, task)
 	if err != nil {
 		return err

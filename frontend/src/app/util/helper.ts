@@ -23,7 +23,12 @@ const cn = (...classes: ClassValue[]) => {
   return twMerge(clsx(...classes));
 };
 
+const capitalize = (str: string) => {
+  return str.charAt(0).toUpperCase() + str.slice(1);
+};
+
 export const helper = {
   formatDate,
   cn,
+  capitalize,
 };

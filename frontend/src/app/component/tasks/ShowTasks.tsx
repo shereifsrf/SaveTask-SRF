@@ -1,8 +1,7 @@
 "use client";
 
 import React, { useEffect } from "react";
-import { TaskModel } from "../model/task";
-import Task from "./Task";
+import { TaskModel } from "@/model/task";
 import {
   closestCenter,
   DndContext,
@@ -12,17 +11,23 @@ import {
   useSensor,
   useSensors,
 } from "@dnd-kit/core";
-import { useQuery } from "@tanstack/react-query";
 import {
   arrayMove,
   SortableContext,
   sortableKeyboardCoordinates,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
-import { updateTask } from "../action/task";
+import { useQueryTasks } from "@/action/query";
+import Task from "./Task";
+import { updateTask } from "@/action/task";
+import { useTask } from "../App";
+
+const LIMIT = 2;
 
 function ShowTasks() {
-  const [items, setItems] = React.useState<TaskModel[]>([]);
+  const [items, setItems] = React.useState<TaskModel[]>();
+  const { selectedStatus } = useTask();
+
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
@@ -34,19 +39,12 @@ function ShowTasks() {
     })
   );
 
-  const { data: tasks } = useQuery({
-    queryKey: ["tasks"],
-    queryFn: async () => {
-      const response = await fetch("http://localhost:8080/api/task");
-      const data = await response.json();
-      return data as TaskModel[];
-    },
-  });
+  const { data, isLoading, isFetching, fetchNextPage, hasNextPage } =
+    useQueryTasks(LIMIT, selectedStatus!);
 
   useEffect(() => {
-    // tasks?.sort((a, b) => b.order - a.order);
-    setItems(tasks ?? []);
-  }, [tasks]);
+    setItems(data?.pages.flat());
+  }, [data]);
 
   const reorderTasks = async (e: DragEndEvent) => {
     if (e.over?.id === e.active.id) {
@@ -54,6 +52,7 @@ function ShowTasks() {
     }
 
     if (e.active.id === e.over?.id) return;
+    if (items == undefined) return;
 
     const activeIdx = items.findIndex((item) => item.id === e.active.id);
     const overIdx = items.findIndex((item) => item.id === e.over!.id);
@@ -103,24 +102,44 @@ function ShowTasks() {
     await updateTask(task.id, task);
   };
 
+  const navText =
+    !isLoading && !isFetching
+      ? items?.length === 0
+        ? "No More"
+        : "Load More"
+      : "Loading...";
   return (
-    <DndContext
-      onDragEnd={reorderTasks}
-      sensors={sensors}
-      collisionDetection={closestCenter}
-    >
-      <SortableContext items={items} strategy={verticalListSortingStrategy}>
-        <ul className="flex flex-col gap-2">
-          {items.map((task) => {
-            return (
-              <li key={task.id} className="">
-                <Task task={task} />
-              </li>
-            );
-          })}
-        </ul>
-      </SortableContext>
-    </DndContext>
+    <section>
+      <DndContext
+        onDragEnd={reorderTasks}
+        sensors={sensors}
+        collisionDetection={closestCenter}
+      >
+        <SortableContext
+          items={items ?? []}
+          strategy={verticalListSortingStrategy}
+        >
+          <ul className="flex flex-col gap-2">
+            {items?.map((task) => {
+              return (
+                <li key={task.id} className="">
+                  <Task task={task} />
+                </li>
+              );
+            })}
+          </ul>
+        </SortableContext>
+      </DndContext>
+      <div className="p-1">
+        <button
+          className="flex w-full justify-center enabled:hover:bg-primary p-2 enabled:hover:text-white mt-2 bg-secondary disabled:text-slate-400 text-sm rounded-md hover:ring-2 hover:ring-secondary "
+          onClick={() => fetchNextPage()}
+          disabled={!hasNextPage || isFetching || isLoading}
+        >
+          {navText}
+        </button>
+      </div>
+    </section>
   );
 }
 

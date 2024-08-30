@@ -1,18 +1,18 @@
 "use client";
 
 import { useQueryClient } from "@tanstack/react-query";
-import { deleteTask, updateTask } from "../action/task";
-import BackIcon from "../icons/BackIcon";
-import DeleteIcon from "../icons/DeleteIcon";
-import TickIcon from "../icons/TickIcon";
-import MoreIcon from "../icons/MoreIcon";
-import { TaskModel, TaskStatus } from "../model/task";
-import { helper } from "../util/helper";
+import { deleteTask, updateTask } from "@/action/task";
+import BackIcon from "@/icons/BackIcon";
+import DeleteIcon from "@/icons/DeleteIcon";
+import TickIcon from "@/icons/TickIcon";
+import MoreIcon from "@/icons/MoreIcon";
+import { TaskModel, TaskStatus } from "@/model/task";
+import { helper } from "@/util/helper";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import EditIcon from "../icons/EditIcon";
-import { useTask } from "./App";
+import EditIcon from "@/icons/EditIcon";
 import { useEffect, useRef, useState } from "react";
+import { useTask } from "../App";
 
 const Task = ({ task }: { task: TaskModel }) => {
   const [expand, setExpand] = useState(false);
@@ -20,7 +20,7 @@ const Task = ({ task }: { task: TaskModel }) => {
   const descriptionRef = useRef<HTMLParagraphElement>(null);
 
   const queryClient = useQueryClient();
-  const { setSelected, nameInputRef } = useTask();
+  const { setSelectedTask, nameInputRef } = useTask();
 
   useEffect(() => {
     const element = descriptionRef.current;
@@ -40,11 +40,13 @@ const Task = ({ task }: { task: TaskModel }) => {
   };
 
   const handleDeleteIcon = async () => {
+    setSelectedTask(undefined);
     await deleteTask(task.id);
     queryClient.invalidateQueries({ queryKey: ["tasks"] });
   };
 
   const handleStatusIcon = async () => {
+    setSelectedTask(undefined);
     const taskToUpdate = {
       ...task,
       status:
@@ -57,7 +59,7 @@ const Task = ({ task }: { task: TaskModel }) => {
   };
 
   const handleEditIcon = () => {
-    setSelected(task);
+    setSelectedTask(task);
     console.log("should see focus", nameInputRef);
     nameInputRef.current?.focus();
   };
@@ -80,7 +82,7 @@ const Task = ({ task }: { task: TaskModel }) => {
         }}
         ref={descriptionRef}
         className={helper.cn(
-          "whitespace-pre-line pl-2 text-black text-opacity-60 break-words line-clamp-3",
+          "whitespace-pre-line px-2 text-black text-opacity-60 break-words line-clamp-3",
           { "line-clamp-none": expand }
         )}
       >
@@ -88,7 +90,7 @@ const Task = ({ task }: { task: TaskModel }) => {
       </p>
 
       <div className="flex justify-between">
-        {clamped && (
+        {clamped ? (
           <button onClick={() => setExpand(!expand)}>
             <div
               className={helper.cn({
@@ -98,21 +100,55 @@ const Task = ({ task }: { task: TaskModel }) => {
               <MoreIcon />
             </div>
           </button>
+        ) : (
+          <span></span>
         )}
 
-        <div className="flex justify-end flex-1">
-          <button onClick={handleEditIcon}>
+        <div className="flex justify-center">
+          <Icon onClick={handleEditIcon}>
             <EditIcon />
-          </button>
-          <button onClick={handleDeleteIcon}>
+          </Icon>
+          <Icon onClick={handleDeleteIcon}>
             <DeleteIcon />
-          </button>
-          <button onClick={handleStatusIcon}>
+          </Icon>
+          <Icon onClick={handleStatusIcon}>
             {task.status === TaskStatus.Pending ? <TickIcon /> : <BackIcon />}
-          </button>
+          </Icon>
         </div>
       </div>
     </div>
+  );
+};
+
+const Icon = ({
+  onClick,
+  children,
+}: {
+  onClick: () => Promise<void> | void;
+  children: React.ReactNode;
+}) => {
+  const [loading, setLoading] = useState(false);
+
+  const handleClick = async () => {
+    setLoading(true);
+    await onClick();
+    setLoading(false);
+  };
+
+  return (
+    <button
+      className="w-6 flex justify-center"
+      onClick={handleClick}
+      disabled={loading}
+    >
+      {loading ? <Spinner /> : children}
+    </button>
+  );
+};
+
+const Spinner = () => {
+  return (
+    <div className="animate-spin rounded-full h-5 w-5 border-2 border-secondary/60 border-t-primary"></div>
   );
 };
 

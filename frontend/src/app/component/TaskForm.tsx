@@ -3,7 +3,7 @@
 import { z } from "zod";
 import { FieldError, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import React, { forwardRef, useEffect } from "react";
+import React, { forwardRef, useEffect, useState } from "react";
 import { addTask, updateTask } from "../action/task";
 import { DateFormat, helper } from "../util/helper";
 import { useQueryClient } from "@tanstack/react-query";
@@ -29,8 +29,9 @@ const defaultValues: TaskFormSchemaType = {
 };
 
 function TaskForm() {
-  const { selected, setSelected, nameInputRef } = useTask();
-  const action = selected ? FormAction.Edit : FormAction.Add;
+  const [pushing, setPushing] = useState(false);
+  const { selectedTask, setSelectedTask, nameInputRef } = useTask();
+  const action = selectedTask ? FormAction.Edit : FormAction.Add;
 
   const {
     register,
@@ -45,23 +46,25 @@ function TaskForm() {
   const { ref, ...rest } = register("name");
 
   useEffect(() => {
-    if (selected === undefined) return;
+    if (selectedTask === undefined) return;
     reset({
-      name: selected.name,
-      description: selected.description,
-      date: helper.formatDate(selected.date, DateFormat.yyyyMMdd),
+      name: selectedTask.name,
+      description: selectedTask.description,
+      date: helper.formatDate(selectedTask.date, DateFormat.yyyyMMdd),
     });
-  }, [selected, reset]);
+  }, [selectedTask, reset]);
 
   const handleSuccess = async (data: TaskFormSchemaType) => {
+    setPushing(true);
     if (action === FormAction.Edit) {
-      await updateTask(selected!.id, {
-        ...selected!,
+      await updateTask(selectedTask!.id, {
+        ...selectedTask!,
         ...data,
       });
     } else await addTask(data.name, data.description, data.date);
     console.log("invalidate");
     queryClient.invalidateQueries({ queryKey: ["tasks"] });
+    setPushing(false);
   };
 
   const handleError = (errors: any) => {
@@ -70,7 +73,7 @@ function TaskForm() {
 
   const handleReset = () => {
     reset(defaultValues);
-    setSelected(undefined);
+    setSelectedTask(undefined);
   };
 
   return (
@@ -104,15 +107,17 @@ function TaskForm() {
       />
       <div className="flex w-full gap-2 p-1">
         <button
+          disabled={pushing}
           type="submit"
-          className="w-full bg-primary ring-secondary ring text-white py-1 rounded-lg"
+          className="disabled:bg-secondary w-full bg-primary ring-secondary ring text-white py-1 rounded-lg"
         >
           {action}
         </button>
         <button
+          disabled={pushing}
           type="button"
           onClick={handleReset}
-          className="flex-1 px-1 bg-orange-900 w-full bg-primary ring-secondary ring text-white py-1 rounded-lg"
+          className="flex-1 px-1 bg-slate-600 w-full bg-primary ring-secondary ring text-white py-1 rounded-lg"
         >
           <ResetIcon />
         </button>
