@@ -1,0 +1,17 @@
+global:
+  dbVolume:
+    values:
+      - 
+  backup:
+    volume:
+      values:
+        - 
+
+task-mongodb:
+  secrets:
+    username: 
+    password: 
+    securityKey: |
+
+env:
+  ADMIN_PASS_MUST_REMOVE: 

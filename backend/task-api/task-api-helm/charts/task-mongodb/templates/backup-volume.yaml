@@ -1,0 +1,41 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: {{ .Values.global.backup.volume.pv }}
+  labels:
+    app: {{ .Release.Name }}
+    chart: {{ .Chart.Name }}
+spec:
+  capacity:
+    storage: {{ .Values.global.backup.volume.size }}
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: {{ .Values.global.volume.storageClassName }}
+  claimRef:
+    namespace: {{ .Release.Namespace }}
+    name: {{ .Values.global.backup.volume.pvc }}
+  local:
+    path: {{ .Values.global.volume.path}}/{{ .Release.Name }}/{{ .Values.global.backup.volume.pv }}
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: kubernetes.io/hostname
+          operator: In
+          values: {{ .Values.global.backup.volume.values | toYaml | nindent 12 }}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ .Values.global.backup.volume.pvc }}
+  labels:
+    app: {{ .Release.Name }}
+    chart: {{ .Chart.Name }}
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ .Values.global.backup.volume.size }}
+  storageClassName: {{ .Values.global.volume.storageClassName }}

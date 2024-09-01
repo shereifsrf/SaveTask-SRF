@@ -1,0 +1,104 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: "{{ .Release.Name }}-{{ .Chart.Name }}"
+  labels:
+    app: {{ .Release.Name }}
+    chart: {{ .Chart.Name }}
+spec:
+  serviceName: "{{ .Release.Name }}-{{ .Chart.Name }}"
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}
+      chart: {{ .Chart.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}
+        chart: {{ .Chart.Name }}
+    spec:
+      containers:
+      - name: {{ .Chart.Name }}
+        image: "{{ .Values.image.name }}:{{ .Values.image.tag }}"
+        command: 
+        - /bin/bash
+        - -c
+        - mongod --keyFile /replica-set-key/security.key --replSet rs0 --bind_ip_all
+        lifecycle:
+          postStart:
+            exec:
+              command:
+              - /bin/sh
+              - -c
+              - |
+                echo "Waiting for MongoDB to be ready..." >> /data/logs.txt
+                until mongosh --eval "db.adminCommand('ping')"
+                do
+                  sleep 2
+                done
+                echo "MongoDB is ready!" >> /data/logs.txt
+                if [ $HOSTNAME = "{{ .Release.Name }}-{{ .Chart.Name }}-0" ]; then                
+                  echo "Initializing replica set..." >> /data/logs.txt
+                  mongosh -f /mongo-scripts/mongo-init.js >> /data/logs.txt
+                  echo "Replica set initialized!" >> /data/logs.txt
+                fi
+                echo "MongoDB initialization script executed!" >> /data/logs.txt
+        ports:
+        - containerPort: {{ .Values.service.targetPort }}
+        volumeMounts:
+        - name: mongodb-data
+          mountPath: /data/db
+        - name: security-key
+          mountPath: /replica-set-key
+        - name: mongo-scripts
+          mountPath: /mongo-scripts
+        env:
+        - name: MONGO_INITDB_ROOT_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Release.Name }}-{{ .Chart.Name }}-secrets
+              key: username
+        - name: MONGO_INITDB_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Release.Name }}-{{ .Chart.Name }}-secrets
+              key: password
+        - name: MONGO_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: {{ .Release.Name }}-{{ .Chart.Name }}-config
+              key: port
+        - name: MONGO_DB
+          valueFrom:
+            configMapKeyRef:
+              name: {{ .Release.Name }}-{{ .Chart.Name }}-config
+              key: db
+      volumes:
+      - name: mongodb-data
+        persistentVolumeClaim:
+          claimName: {{ .Values.global.dbVolume.pvc }}
+      - name: security-key
+        secret:
+          secretName: {{ .Release.Name }}-{{ .Chart.Name }}-secrets
+          defaultMode: 0o400
+      - name: mongo-scripts
+        configMap:
+          name: {{ .Release.Name }}-{{ .Chart.Name }}-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: "{{ .Release.Name }}-{{ .Chart.Name }}"
+  labels:
+    app: {{ .Release.Name }}
+    chart: {{ .Chart.Name }}
+spec:
+  selector:
+    app: {{ .Release.Name }}
+    chart: {{ .Chart.Name }}
+  ports:
+    - protocol: TCP
+      port: {{ .Values.service.targetPort }}
+      targetPort: {{ .Values.service.targetPort }}
+# https://dilipkumar.medium.com/standalone-mongodb-on-kubernetes-cluster-19e7b5896b27

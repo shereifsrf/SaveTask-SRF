@@ -1,0 +1,82 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ .Release.Name }}-{{ .Chart.Name }}-backup
+  labels:
+    app: {{ .Release.Name }}
+    chart: {{ .Chart.Name }}
+spec:
+  schedule: {{ .Values.global.backup.full.schedule | quote }}
+  # startingDeadlineSeconds: 10
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          labels:
+            app: {{ .Release.Name }}
+            chart: {{ .Chart.Name }}
+        spec:
+          restartPolicy: Never
+          initContainers:
+            - name: wait-for-mongodb
+              image: busybox:1.36
+              command: ['sh', '-c']
+              args:
+              - |
+                echo waiting for mongodb;
+                until nslookup {{ .Release.Name }}-{{ .Chart.Name }}.{{ .Values.global.namespace }}.svc.cluster.local; do echo waiting for mongodb; sleep 2; done;
+                echo start graceful wait;
+                # show print seconds 1 to 10
+                for i in $(seq 1 10); do echo $i; sleep 1; done;
+                echo end graceful wait;
+          containers:
+          - name: {{ .Chart.Name }}-backup
+            image: "{{ .Values.image.name }}:{{ .Values.image.tag }}"
+            env:
+            - name: MONGODB_HOST
+              value: {{ .Release.Name }}-{{ .Chart.Name }}
+            - name: MONGODB_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Release.Name }}-{{ .Chart.Name }}-config
+                  key: port
+            - name: MONGODB_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-{{ .Chart.Name }}-secrets
+                  key: username
+            - name: MONGODB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-{{ .Chart.Name }}-secrets
+                  key: password
+            command: ["/bin/bash", "-c"]
+            args: 
+            - |
+              echo "Running backup script"
+              /scripts/full_backup.sh        
+              echo "Backup script finished"  
+            volumeMounts:
+            - name: backup-script
+              mountPath: /scripts
+              readOnly: true
+            - name: backup-volume
+              mountPath: /backups
+          volumes:
+          - name: backup-script
+            configMap:
+              name: {{ .Release.Name }}-{{ .Chart.Name }}-backup-config
+              defaultMode: 0755
+          - name: backup-volume
+            persistentVolumeClaim:
+              claimName: {{ .Values.global.backup.volume.pvc }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-{{ .Chart.Name }}-backup-config
+  labels:
+    app: {{ .Release.Name }}
+    chart: {{ .Chart.Name }}
+data:
+  full_backup.sh: | {{ .Files.Get "full_backup.sh" | nindent 4 }}

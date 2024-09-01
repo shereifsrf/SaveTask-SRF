@@ -1,0 +1,47 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: {{ .Release.Name }}-{{ .Chart.Name }}-restore
+  labels:
+    app: {{ .Release.Name }}
+    chart: {{ .Chart.Name }}
+spec:
+  restartPolicy: Never
+  containers:
+  - name: {{ .Chart.Name }}-restore
+    image: "{{ .Values.image.name }}:{{ .Values.image.tag }}"
+    env:
+    - name: MONGODB_PORT
+      valueFrom:
+        configMapKeyRef:
+          name: {{ .Release.Name }}-{{ .Chart.Name }}-config
+          key: port
+    - name: MONGODB_USERNAME
+      valueFrom:
+        secretKeyRef:
+          name: {{ .Release.Name }}-{{ .Chart.Name }}-secrets
+          key: username
+    - name: MONGODB_PASSWORD
+      valueFrom:
+        secretKeyRef:
+          name: {{ .Release.Name }}-{{ .Chart.Name }}-secrets
+          key: password
+    command: ["/bin/bash", "-c"]
+    args: 
+    - |
+      echo "Running restore script"
+      /scripts/incremental_backup.sh 
+    volumeMounts:
+    - name: backup-script
+      mountPath: /scripts
+      readOnly: true
+    - name: backup-volume
+      mountPath: /backups
+  volumes:
+  - name: backup-script
+    configMap:
+      name: {{ .Release.Name }}-{{ .Chart.Name }}-backup-config
+      defaultMode: 0755
+  - name: backup-volume
+    persistentVolumeClaim:
+      claimName: {{ .Values.global.backup.volume.pvc }}

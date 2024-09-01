@@ -7,7 +7,9 @@ import {
   DndContext,
   DragEndEvent,
   KeyboardSensor,
+  MouseSensor,
   PointerSensor,
+  TouchSensor,
   useSensor,
   useSensors,
 } from "@dnd-kit/core";
@@ -21,26 +23,38 @@ import { useQueryTasks } from "@/action/query";
 import Task from "./Task";
 import { updateTask } from "@/action/task";
 import { useTask } from "../App";
+import { helper } from "@/util/helper";
 
-const LIMIT = 2;
+const LIMIT = 5;
 
 function ShowTasks() {
   const [items, setItems] = React.useState<TaskModel[]>();
-  const { selectedStatus } = useTask();
+  const { selectedStatus, pass } = useTask();
 
   const sensors = useSensors(
-    useSensor(PointerSensor, {
+    // useSensor(PointerSensor, {
+    //   activationConstraint: {
+    //     distance: 5,
+    //   },
+    // }),
+    useSensor(TouchSensor, {
       activationConstraint: {
-        distance: 5,
+        delay: 250,
+        tolerance: 5,
       },
     }),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
+    }),
+    useSensor(MouseSensor, {
+      activationConstraint: {
+        distance: 5,
+      },
     })
   );
 
   const { data, isLoading, isFetching, fetchNextPage, hasNextPage } =
-    useQueryTasks(LIMIT, selectedStatus!);
+    useQueryTasks(LIMIT, selectedStatus!, pass);
 
   useEffect(() => {
     setItems(data?.pages.flat());
@@ -99,7 +113,7 @@ function ShowTasks() {
     const updated = arrayMove(items, activeIdx, overIdx);
     updated[overIdx] = task;
     setItems(updated);
-    await updateTask(task.id, task);
+    await updateTask(task.id, task, pass);
   };
 
   const navText =
@@ -109,7 +123,7 @@ function ShowTasks() {
         : "Load More"
       : "Loading...";
   return (
-    <section>
+    <section className="touch-manipulation">
       <DndContext
         onDragEnd={reorderTasks}
         sensors={sensors}
@@ -119,7 +133,7 @@ function ShowTasks() {
           items={items ?? []}
           strategy={verticalListSortingStrategy}
         >
-          <ul className="flex flex-col gap-2">
+          <ul className="flex flex-col gap-2 ">
             {items?.map((task) => {
               return (
                 <li key={task.id} className="">
@@ -130,9 +144,9 @@ function ShowTasks() {
           </ul>
         </SortableContext>
       </DndContext>
-      <div className="p-1">
+      <div className="p-1 flex gap-2 mt-2">
         <button
-          className="flex w-full justify-center enabled:hover:bg-primary p-2 enabled:hover:text-white mt-2 bg-secondary disabled:text-slate-400 text-sm rounded-md hover:ring-2 hover:ring-secondary "
+          className="flex w-full justify-center enabled:hover:bg-primary p-2 enabled:hover:text-white bg-secondary disabled:text-slate-400 text-sm rounded-md hover:ring-2 hover:ring-secondary "
           onClick={() => fetchNextPage()}
           disabled={!hasNextPage || isFetching || isLoading}
         >

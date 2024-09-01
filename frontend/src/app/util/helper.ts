@@ -6,6 +6,15 @@ export enum DateFormat {
   yyyyMMdd = "yyyy-MM-dd",
 }
 
+const setLocalStorage = (key: string, value: string) => {
+  localStorage.setItem(key, value);
+};
+
+const getLocalStorage = (key: string, defaultValue: string) => {
+  const value = localStorage.getItem(key);
+  return value ? value : defaultValue;
+};
+
 const formatDate = (date: string, format = DateFormat.ddMMyyyy) => {
   const dateObj = new Date(date);
   // format date in dd/mm/yyyy
@@ -31,4 +40,6 @@ export const helper = {
   formatDate,
   cn,
   capitalize,
+  setLocalStorage,
+  getLocalStorage,
 };

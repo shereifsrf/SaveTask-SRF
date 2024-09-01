@@ -1,0 +1,16 @@
+replicaCount: 1
+version: "1.0.6"
+
+image:
+  repository: registry.shereif.com/srf-savetask/task-nextjs-fe
+  tag: "latest"
+  pullSecrets:
+    name: regcred
+  
+env:
+  NEXT_PUBLIC_TASK_API_URL: https://savetask.shereif-test.com/api
+  NEXT_PUBLIC_TASK_BACKEND_URL: http://taskapirelease-task-api-helm:8001/api
+
+service:
+  port: 3001
+  targetPort: 3000

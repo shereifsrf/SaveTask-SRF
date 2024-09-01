@@ -20,7 +20,7 @@ const Task = ({ task }: { task: TaskModel }) => {
   const descriptionRef = useRef<HTMLParagraphElement>(null);
 
   const queryClient = useQueryClient();
-  const { setSelectedTask, nameInputRef } = useTask();
+  const { setSelectedTask, nameInputRef, pass } = useTask();
 
   useEffect(() => {
     const element = descriptionRef.current;
@@ -41,7 +41,7 @@ const Task = ({ task }: { task: TaskModel }) => {
 
   const handleDeleteIcon = async () => {
     setSelectedTask(undefined);
-    await deleteTask(task.id);
+    await deleteTask(task.id, pass);
     queryClient.invalidateQueries({ queryKey: ["tasks"] });
   };
 
@@ -54,7 +54,7 @@ const Task = ({ task }: { task: TaskModel }) => {
           ? TaskStatus.Done
           : TaskStatus.Pending,
     };
-    await updateTask(task.id, taskToUpdate);
+    await updateTask(task.id, taskToUpdate, pass);
     queryClient.invalidateQueries({ queryKey: ["tasks"] });
   };
 

@@ -1,9 +1,12 @@
 package main
 
 import (
+	"os"
 	"shereifsrf/SaveTask-SRF/task-api/common"
 	"shereifsrf/SaveTask-SRF/task-api/controller"
+	"shereifsrf/SaveTask-SRF/task-api/controller/middleware"
 	"shereifsrf/SaveTask-SRF/task-api/dao"
+	"strings"
 	"time"
 
 	"github.com/gin-contrib/cors"
@@ -17,24 +20,34 @@ func main() {
 	defer unSetupModules()
 
 	r := setupRoutes()
+	common.Log.Printf("Server is running at %v", common.GetEnv("PORT", true))
 
-	r.Run(":8080")
+	r.SetTrustedProxies([]string{"localhost"})
+	r.Run()
 }
 
 func setupRoutes() *gin.Engine {
 	gin.SetMode(common.Env.GIN_MODE)
 	r := gin.Default()
-	r.SetTrustedProxies([]string{"localhost"})
+
+	allowOrigins := []string{"http://localhost:3000", "http://localhost:3001"}
+	if gin.IsDebugging() {
+		extraOrigins := os.Getenv("ALLOW_ORIGINS")
+		extraOriginsSlice := strings.Split(extraOrigins, ",")
+		allowOrigins = append(allowOrigins, extraOriginsSlice...)
+	}
+
 	r.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"http://localhost:3000"},
+		AllowOrigins:     allowOrigins,
 		AllowMethods:     []string{"GET"},
-		AllowHeaders:     []string{"Origin"},
+		AllowHeaders:     []string{"Origin", "ADMIN_PASS_MUST_REMOVE"},
 		ExposeHeaders:    []string{"Content-Length"},
 		AllowCredentials: true,
 		MaxAge:           12 * time.Hour,
 	}))
 
 	api := r.Group("/api")
+	api.Use(middleware.TokenMiddleware())
 	controller.SetupTaskController(api.Group("/task"))
 
 	return r

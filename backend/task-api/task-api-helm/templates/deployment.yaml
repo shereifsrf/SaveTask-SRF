@@ -1,0 +1,74 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-{{ .Chart.Name }}
+  labels:
+    app: {{ .Release.Name }}
+    chart: {{ .Chart.Name }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}
+      chart: {{ .Chart.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}
+        chart: {{ .Chart.Name }}
+      annotations:
+        version: {{ .Values.version }}
+    spec:
+      initContainers:
+        - name: wait-for-mongodb
+          image: busybox:1.36
+          command: ['sh', '-c']
+          args:
+          - |
+            echo waiting for mongodb;
+            until nslookup {{ .Release.Name }}-task-mongodb.{{ .Values.global.namespace }}.svc.cluster.local; do echo waiting for mongodb; sleep 2; done;
+            for i in $(1 10); do echo $i; sleep 1; done;
+      containers:
+        - name: {{ .Chart.Name }}
+          image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
+          ports:
+            - containerPort: {{ .Values.service.targetPort }}
+          env:
+            - name: MONGO_DB_REPLICA_SET
+              value: "rs0"
+            - name: GIN_MODE
+              value: {{ .Values.global.mode }}
+            - name: PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Release.Name }}-config
+                  key: api-port
+            - name: MONGO_DB_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Release.Name }}-task-mongodb-config
+                  key: db
+            - name: MONGO_DB_HOST
+              value: {{ .Release.Name }}-task-mongodb
+            - name: MONGO_DB_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Release.Name }}-task-mongodb-config
+                  key: port
+            - name: MONGO_DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-task-mongodb-secrets
+                  key: username
+            - name: MONGO_DB_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-task-mongodb-secrets
+                  key: password
+            - name: ADMIN_PASS_MUST_REMOVE
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-secrets
+                  key: admin-pass-must-remove
+      imagePullSecrets:
+        - name: {{ .Values.imagePullSecrets.name }}
