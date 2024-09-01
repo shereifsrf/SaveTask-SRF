@@ -50,7 +50,6 @@ helm-install:
 		helm upgrade --install \
 			$(HELM_NAME) \
 			-n $(NS) \
-			-f $(HELM_DIR)/values-env.yaml \
 			$(HELM_DIR); \
 	else \
 		echo "Confim? [y/n]"; \
@@ -59,7 +58,6 @@ helm-install:
 			helm upgrade --install \
 				$(HELM_NAME) \
 				-n $(NS) \
-				-f $(HELM_DIR)/values-env.yaml \
 				-f $(HELM_DIR)/values.prod.yaml \
 				$(HELM_DIR); \
 		else \

@@ -83,7 +83,7 @@ function TaskProvider({ children }: { children: React.ReactNode }) {
   return <TaskContext.Provider value={value}>{children}</TaskContext.Provider>;
 }
 
-const AppClient = React.memo(() => {
+const AppClient = () => {
   const [authed, setAuthed] = React.useState(false);
   const { pass, setPass } = useTask();
 
@@ -132,6 +132,6 @@ const AppClient = React.memo(() => {
       </div>
     </QueryClientProvider>
   );
-});
+};
 
 export default App;
