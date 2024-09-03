@@ -1,0 +1,68 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: "{{ .Release.Name }}-{{ .Chart.Name }}"
+  labels:
+    app: {{ .Release.Name }}
+    chart: {{ .Chart.Name }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}
+      chart: {{ .Chart.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}
+        chart: {{ .Chart.Name }}
+    spec:
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.name }}:{{ .Values.image.tag }}"
+          ports:
+            - containerPort: {{ .Values.service.targetPort }}
+          volumeMounts:
+            - name: {{ .Values.dbVolume.name }}
+              mountPath: {{ .Values.dbVolume.path }}
+          env:
+            - name: MONGO_INITDB_ROOT_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-{{ .Chart.Name }}-secrets
+                  key: username
+            - name: MONGO_INITDB_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-{{ .Chart.Name }}-secrets
+                  key: password
+            - name: MONGO_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Release.Name }}-{{ .Chart.Name }}-config
+                  key: port
+            - name: MONGO_DB
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Release.Name }}-{{ .Chart.Name }}-config
+                  key: db
+      volumes:
+        - name: {{ .Values.dbVolume.name }}
+          persistentVolumeClaim:
+            claimName: {{ .Values.global.dbVolume.pvc }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: "{{ .Release.Name }}-{{ .Chart.Name }}"
+  labels:
+    app: {{ .Release.Name }}
+    chart: {{ .Chart.Name }}
+spec:
+  selector:
+    app: {{ .Release.Name }}
+    chart: {{ .Chart.Name }}
+  ports:
+    - protocol: TCP
+      port: {{ .Values.service.targetPort }}
+      targetPort: {{ .Values.service.targetPort }}

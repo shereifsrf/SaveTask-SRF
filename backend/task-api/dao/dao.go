@@ -28,9 +28,7 @@ func InitMongoDB() {
 		ctx,
 		options.Client().
 			SetHosts([]string{host}).
-			SetAuth(credential).
-			SetReplicaSet(common.Env.MONGO_DB_REPLICA_SET).
-			SetDirect(true),
+			SetAuth(credential),
 	)
 	if err != nil {
 		common.Log.Fatalf("Error pinging to MongoDB: %v", err)

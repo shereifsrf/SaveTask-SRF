@@ -9,15 +9,15 @@ import (
 var Env Environment
 
 type Environment struct {
-	GIN_MODE string
+	GIN_MODE      string
+	PORT          string
+	ALLOW_ORIGINS string
 
-	MONGO_DB_HOST string
-	MONGO_DB_PORT string
-	MONGO_DB_USER string
-	MONGO_DB_PASS string
-	MONGO_DB_NAME string
-
-	ADMIN_PASS_MUST_REMOVE string
+	DB_HOST string
+	DB_PORT string
+	DB_USER string
+	DB_PASS string
+	DB_NAME string
 }
 
 func InitEnv(isDebug bool) {
@@ -28,16 +28,18 @@ func InitEnv(isDebug bool) {
 		}
 	}
 
-	Env.MONGO_DB_HOST = GetEnv(MONGO_DB_HOST, true)
-	Env.MONGO_DB_PORT = GetEnv(MONGO_DB_PORT, true)
-	Env.MONGO_DB_USER = GetEnv(MONGO_DB_USER, true)
-	Env.MONGO_DB_PASS = GetEnv(MONGO_DB_PASS, true)
-	Env.MONGO_DB_NAME = GetEnv(MONGO_DB_NAME, true)
+	Env.PORT = GetEnv(PORT, true)
+	Env.ALLOW_ORIGINS = GetEnv(ALLOW_ORIGINS, true)
+
+	Env.DB_HOST = GetEnv(DB_HOST, true)
+	Env.DB_PORT = GetEnv(DB_PORT, true)
+	Env.DB_USER = GetEnv(DB_USER, true)
+	Env.DB_PASS = GetEnv(DB_PASS, true)
+	Env.DB_NAME = GetEnv(DB_NAME, true)
 	Env.GIN_MODE = GetEnv(GIN_MODE, false)
 	if Env.GIN_MODE != RELEASE {
 		Env.GIN_MODE = DEBUG
 	}
-	Env.ADMIN_PASS_MUST_REMOVE = GetEnv(ADMIN_PASS_MUST_REMOVE, true)
 }
 
 func GetEnv(key string, required bool) string {

@@ -34,8 +34,6 @@ spec:
           ports:
             - containerPort: {{ .Values.service.targetPort }}
           env:
-            - name: MONGO_DB_REPLICA_SET
-              value: "rs0"
             - name: GIN_MODE
               value: {{ .Values.global.mode }}
             - name: PORT

@@ -13,17 +13,5 @@ services:
       MONGO_INITDB_DATABASE: ${MONGO_DB_NAME}
     volumes:
       - savetask-mongoDBVolume:/data/db
-      - ./dev:/replica-set-key
-    command: >
-      bin/bash -c '
-        echo "Waiting for MongoDB";
-        sleep 2;
-        echo "Start graceful wait";
-        cp /replica-set-key/some.key /replica.key;
-        chown root:root /replica.key;
-        chmod 400 /replica.key;
-        mongod --keyFile /replica.key --replSet rs0 --bind_ip_all;
-        echo "End graceful wait";
-      '
 volumes:
   savetask-mongoDBVolume:

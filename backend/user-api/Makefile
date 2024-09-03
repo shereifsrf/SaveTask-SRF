@@ -1,47 +1,28 @@
+NS := srf-savetask
+HELM_DIR := user-api-helm
+HELM_NAME := taskapirelease
+DOCKER_IMAGE := registry.shereif.com/srf-savetask/user-api:latest
+
+init:
+	go mod init github.com/shereifsrf/SaveTask-SRF/user-api
+
 install:
+	# go install github.com/air-verse/air@latest
 	go mod tidy
-	go install github.com/air-verse/air@latest
+	go get -u gorm.io/gorm
+	go get -u github.com/joho/godotenv
 
 dev:
 	make dc "-d"
 	air
 
-dc:
-	docker-compose -f config/docker-compose.yml --env-file config/.env up
-
-dc-stop:
-	docker-compose -f config/docker-compose.yml --env-file config/.env stop
-
-dc-start:
-	docker-compose -f config/docker-compose.yml --env-file config/.env start
-
-replica-key:
-	openssl rand -base64 756 > config/dev/some.key
-
-curl-add:
-	curl -X POST -H "Content-Type: application/json" -d '{"name":"task2","description":"description1","status":"pending"}' http://localhost:8080/api/task
-
-curl-list:
-	# $(eval url:=http://localhost:8080)
-	$(eval url:=https://savetask.shereif.com)
-	curl -X GET $(url)/api/task -H "NOTHING_PASS: value"
-
-curl-update:
-	curl -X PUT -H "Content-Type: application/json" -d '{"id":"66cec55a4232a7c904621038", "name":"task2","description":"description1-updated","status":"completed"}' http://localhost:8080/api/task/66cec55a4232a7c904621038
-
-curl-delete:
-	curl -X DELETE http://localhost:8080/api/task/66cec55a4232a7c904621038	
-
 ### Kubernetes ###
-NS := srf-savetask
 make ns:
 	kubectl -n $(NS) $(filter-out $@,$(MAKECMDGOALS))
 
-HELM_DIR := task-api-helm
-HELM_NAME := taskapirelease
 helm-create:
 	# helm create $(HELM_DIR)
-	cd $(HELM_DIR)/charts && helm create task-mongodb
+	cd $(HELM_DIR)/charts && helm create user-pgdb
 
 helm-install:
 	$(eval context:=$(shell kubectl config current-context))
@@ -75,13 +56,19 @@ helm-show:
 		-l app=$(HELM_NAME)
 		# | grep task
 
-
 ### Docker ###
 dc:
-	docker-compose -f config/docker-compose.yml up -d
+	docker-compose -f config/docker-compose.yml --env-file config/.env up
 
 dc-down:
 	docker-compose -f config/docker-compose.yml down
+
+dc-stop:
+	docker-compose -f config/docker-compose.yml --env-file config/.env stop
+
+dc-start:
+	docker-compose -f config/docker-compose.yml --env-file config/.env start
+	docker-compose -f config/docker-compose.yml up -d
 
 d-access-vol:
 	docker run -it --rm --volume config_user-db-volume:/var \
@@ -89,7 +76,7 @@ d-access-vol:
 
 docker-build:
 	docker build \
-	-t registry.shereif.com/srf-savetask/task-api:latest \
+	-t $(DOCKER_IMAGE) \
 	-f config/Dockerfile .
 
 docker-exec:
@@ -101,24 +88,29 @@ docker-run:
 		echo "Running docker without command"; \
 		docker run \
 			-p 8001:8001 \
-			registry.shereif.com/srf-savetask/task-api:latest; \
+			$(DOCKER_IMAGE); \
 	else \
 		echo "Running docker with command"; \
 		docker run \
 			-it --entrypoint /bin/sh \
-			registry.shereif.com/srf-savetask/task-api:latest; \
+			$(DOCKER_IMAGE); \
 	fi
 
 docker-push:
 	docker login registry.shereif.com && \
 	docker push \
-		registry.shereif.com/srf-savetask/task-api:latest
+		$(DOCKER_IMAGE)
 
 docker-pull:
 	docker login registry.shereif.com && \
 	docker pull \
-		registry.shereif.com/srf-savetask/task-api:latest
+		$(DOCKER_IMAGE)
 
-exec:
-	kubectl -n $(NS) \
-		exec -it $(filter-out $@,$(MAKECMDGOALS)) -- /bin/bash
+
+# Curl Commands
+
+curl-add:
+	$(eval domain:=http://localhost:8002)
+	curl -X POST $(domain)/api/user \
+		-H "Content-Type: application/json" \
+		-d '{"username": "Task 1", "password": "Task 1 description", "role": "admin", "is_active": true}'

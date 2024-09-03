@@ -1,0 +1,15 @@
+services:
+  postgres-user-db:
+    image: postgres:16.4
+    container_name: postgres-user-db
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASS}
+      - POSTGRES_DB=${DB_NAME}
+    volumes:
+      - savetask-user-db-volume:/var/lib/postgresql/data
+
+volumes:
+  savetask-user-db-volume:

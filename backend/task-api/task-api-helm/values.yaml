@@ -49,6 +49,10 @@ task-mongodb:
     initdb:
       filename: mongo-init.js
 
+  dbVolume:
+    name: mongodb-data
+    path: /data/db
+
   # use override to set the username and password
 
   secrets:
