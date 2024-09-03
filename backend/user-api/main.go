@@ -43,7 +43,7 @@ func setupRoutes() *gin.Engine {
 
 	api := r.Group("/api")
 	// api.Use(middleware.TokenMiddleware())
-	controller.SetupTaskController(api.Group("/user"))
+	controller.SetupUserController(api.Group("/user"))
 
 	return r
 }

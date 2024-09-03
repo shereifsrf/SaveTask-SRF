@@ -24,7 +24,8 @@ func InitMongoDB() {
 
 	host := fmt.Sprintf("%s:%s", common.Env.MONGO_DB_HOST, common.Env.MONGO_DB_PORT)
 
-	client, err := mongo.Connect(
+	var err error
+	client, err = mongo.Connect(
 		ctx,
 		options.Client().
 			SetHosts([]string{host}).

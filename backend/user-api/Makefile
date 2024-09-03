@@ -108,9 +108,22 @@ docker-pull:
 
 
 # Curl Commands
-
+DOMAIN := http://localhost:8002
 curl-add:
-	$(eval domain:=http://localhost:8002)
-	curl -X POST $(domain)/api/user \
+	curl -X POST $(DOMAIN)/api/user \
 		-H "Content-Type: application/json" \
-		-d '{"username": "Task 1", "password": "Task 1 description", "role": "admin", "is_active": true}'
+		-d '{"username": "tester3-c1", "password": "password", "role": "user"}'
+
+curl-list:
+	curl -X GET $(DOMAIN)/api/user
+
+curl-get:
+	curl -X GET $(DOMAIN)/api/user/2
+
+curl-update:
+	curl -X PUT $(DOMAIN)/api/user/4 \
+		-H "Content-Type: application/json" \
+		-d '{"isActive": false, "username": "tester3-c3"}'
+
+curl-delete:
+	curl -X DELETE $(DOMAIN)/api/user/4

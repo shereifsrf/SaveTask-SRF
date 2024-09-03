@@ -20,7 +20,8 @@ func Init() {
 		common.Env.DB_PASS,
 	)
 
-	UserDB, err := gorm.Open(postgres.Open(url), &gorm.Config{})
+	var err error
+	UserDB, err = gorm.Open(postgres.Open(url), &gorm.Config{})
 	if err != nil {
 		common.Log.Fatalf("Error connecting to DB %v", err)
 	}
