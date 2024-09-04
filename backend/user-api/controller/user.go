@@ -5,23 +5,30 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"github.com/shereifsrf/SaveTask-SRF/user-api/controller/middleware"
 	"github.com/shereifsrf/SaveTask-SRF/user-api/dao/model"
 	"github.com/shereifsrf/SaveTask-SRF/user-api/dao/service"
 )
 
 type userController struct {
 	us service.IUser
+	js service.IJwt
 }
 
 func SetupUserController(router *gin.RouterGroup) {
-	controller := &userController{
+	c := &userController{
 		us: service.NewUserService(),
+		js: service.NewJwtService(),
 	}
-	router.GET("", controller.listUser)
-	router.GET(":id", controller.getUser)
-	router.POST("", controller.addUser)
-	router.PUT(":id", controller.updateUser)
-	router.DELETE(":id", controller.deleteUser)
+	router.POST("", c.addUser)
+
+	router.Use(middleware.AuthMiddleware(c.js))
+	{
+		router.GET("", c.listUser)
+		router.GET(":id", c.getUser)
+		router.PUT(":id", c.updateUser)
+		router.DELETE(":id", c.deleteUser)
+	}
 }
 
 func (c *userController) listUser(ctx *gin.Context) {

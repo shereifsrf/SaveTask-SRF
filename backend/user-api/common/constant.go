@@ -13,5 +13,12 @@ const (
 	PORT          = "PORT"
 	ALLOW_ORIGINS = "ALLOW_ORIGINS"
 
+	JWT_SECRET    = "JWT_SECRET"
+	JWT_ISSUER    = "JWT_ISSUER"
+	JWT_AUDIENCE  = "JWT_AUDIENCE"
+	JWT_EXPIRE    = "JWT_EXPIRE"
+	Authorization = "Authorization"
+	UserData      = "UserData"
+
 	ADMIN_PASS_MUST_REMOVE = "ADMIN_PASS_MUST_REMOVE"
 )

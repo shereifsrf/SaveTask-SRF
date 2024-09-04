@@ -2,6 +2,7 @@ package common
 
 import (
 	"os"
+	"strconv"
 
 	"github.com/joho/godotenv"
 )
@@ -18,6 +19,11 @@ type Environment struct {
 	DB_USER string
 	DB_PASS string
 	DB_NAME string
+
+	JWT_SECRET   string
+	JWT_ISSUER   string
+	JWT_AUDIENCE string
+	JWT_EXPIRE   uint64
 }
 
 func InitEnv(isDebug bool) {
@@ -30,6 +36,17 @@ func InitEnv(isDebug bool) {
 
 	Env.PORT = GetEnv(PORT, true)
 	Env.ALLOW_ORIGINS = GetEnv(ALLOW_ORIGINS, true)
+
+	Env.JWT_SECRET = GetEnv(JWT_SECRET, true)
+	Env.JWT_ISSUER = GetEnv(JWT_ISSUER, true)
+	Env.JWT_AUDIENCE = GetEnv(JWT_AUDIENCE, true)
+	jwtExpire := GetEnv(JWT_EXPIRE, true)
+	if expire, err := strconv.ParseUint(jwtExpire, 10, 64); err != nil {
+		Log.Fatalf("Error loading env %v",
+			JWT_EXPIRE)
+	} else {
+		Env.JWT_EXPIRE = expire
+	}
 
 	Env.DB_HOST = GetEnv(DB_HOST, true)
 	Env.DB_PORT = GetEnv(DB_PORT, true)
