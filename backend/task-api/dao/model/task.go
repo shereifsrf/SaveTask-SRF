@@ -15,7 +15,7 @@ type Task struct {
 	Date        time.Time           `bson:"date" json:"date"`
 	Status      Enum_Status         `bson:"status" json:"status"`
 	Order       float64             `bson:"order" json:"order"`
-	UserID      *primitive.ObjectID `bson:"userId" json:"userId"`
+	Username    string              `bson:"username" json:"username"`
 }
 
 type Enum_Status string
@@ -26,7 +26,8 @@ const (
 )
 
 type ListTaskQuery struct {
-	Page   int         `form:"page"`
-	Limit  int         `form:"limit"`
-	Status Enum_Status `form:"status"`
+	Page     int         `form:"page"`
+	Limit    int         `form:"limit"`
+	Status   Enum_Status `form:"status"`
+	Username *string     `form:"username"`
 }

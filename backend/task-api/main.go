@@ -4,8 +4,8 @@ import (
 	"os"
 	"shereifsrf/SaveTask-SRF/task-api/common"
 	"shereifsrf/SaveTask-SRF/task-api/controller"
-	"shereifsrf/SaveTask-SRF/task-api/controller/middleware"
 	"shereifsrf/SaveTask-SRF/task-api/dao"
+	"shereifsrf/SaveTask-SRF/task-api/dao/service"
 	"strings"
 	"time"
 
@@ -40,15 +40,16 @@ func setupRoutes() *gin.Engine {
 	r.Use(cors.New(cors.Config{
 		AllowOrigins:     allowOrigins,
 		AllowMethods:     []string{"GET"},
-		AllowHeaders:     []string{"Origin", "ADMIN_PASS_MUST_REMOVE"},
+		AllowHeaders:     []string{"Origin"},
 		ExposeHeaders:    []string{"Content-Length"},
 		AllowCredentials: true,
 		MaxAge:           12 * time.Hour,
 	}))
 
+	userApiService := service.NewUserApiService()
+
 	api := r.Group("/api")
-	api.Use(middleware.TokenMiddleware())
-	controller.SetupTaskController(api.Group("/task"))
+	controller.SetupTaskController(api.Group("/task"), userApiService)
 
 	return r
 }

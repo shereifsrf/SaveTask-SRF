@@ -11,5 +11,7 @@ const (
 	DEBUG    = "debug"
 	RELEASE  = "release"
 
-	ADMIN_PASS_MUST_REMOVE = "ADMIN_PASS_MUST_REMOVE"
+	USER_API_URL  = "USER_API_URL"
+	Authorization = "Authorization"
+	UserData      = "UserData"
 )

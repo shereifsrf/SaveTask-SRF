@@ -14,8 +14,8 @@ import (
 )
 
 type IAuth interface {
-	GenerateToken(username string) (string, error)
-	ValidateToken(token string) (*model.User, error)
+	GenerateToken(user model.User) (string, error)
+	ValidateToken(token string, needUInfo bool) (*model.User, error)
 	GenerateHashSalt(password string, salt *string) (string, string, error)
 	VerifyPassword(password, hash, salt string) bool
 }
@@ -38,12 +38,13 @@ type authService struct {
 	ap *model.AuthParam
 }
 
-func (s *authService) GenerateToken(username string) (string, error) {
+func (s *authService) GenerateToken(user model.User) (string, error) {
 	// get token that contain jwt properties
 	expiry := time.Now().Add(time.Second * time.Duration(common.Env.JWT_EXPIRE))
 	audience := jwt.ClaimStrings{common.Env.JWT_AUDIENCE}
 	claims := &model.Jwt{
-		Username: username,
+		Username: user.Username,
+		Role:     user.Role,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(expiry),
 			Issuer:    common.Env.JWT_ISSUER,
@@ -61,7 +62,7 @@ func (s *authService) GenerateToken(username string) (string, error) {
 	return tokenString, nil
 }
 
-func (s *authService) ValidateToken(token string) (*model.User, error) {
+func (s *authService) ValidateToken(token string, needUInfo bool) (*model.User, error) {
 	claims := &model.Jwt{}
 	tkn, err := jwt.ParseWithClaims(token, claims, func(token *jwt.Token) (interface{}, error) {
 		return []byte(common.Env.JWT_SECRET), nil
@@ -75,12 +76,16 @@ func (s *authService) ValidateToken(token string) (*model.User, error) {
 	}
 
 	// check if the user exist
-	user, err := s.us.Get(0, &claims.Username)
-	if err != nil {
-		return nil, err
+	if needUInfo {
+		user, err := s.us.Get(0, &claims.Username)
+		if err != nil {
+			return nil, err
+		}
+		return user, nil
 	}
 
-	return user, nil
+	return &model.User{Username: claims.Username, Role: claims.Role}, nil
+
 }
 
 func (s *authService) generateSalt() ([]byte, error) {

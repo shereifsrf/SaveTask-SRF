@@ -3,11 +3,16 @@ install:
 	go install github.com/air-verse/air@latest
 
 dev:
-	make dc "-d"
+	make dc $(filter-out $@,$(MAKECMDGOALS)) || echo all good
 	air
 
 dc:
-	docker-compose -f config/docker-compose.yml --env-file config/.env up
+	$(eval commands := $(filter-out $@,$(MAKECMDGOALS)))
+	if [ "$(commands)" = "mac" ]; then \
+		docker-compose -f config/docker-compose.yml --env-file config/.env up -d; \
+	else \
+		docker-compose -f config/docker-compose.yml --env-file config/.env up; \
+	fi
 
 dc-stop:
 	docker-compose -f config/docker-compose.yml --env-file config/.env stop
@@ -106,11 +111,16 @@ exec:
 # Curl requests
 DOMAIN := http://localhost:8001
 # DOMAIN := https://savetask.shereif.com
+Authorization := "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InRlc3RlcjEiLCJyb2xlIjoiYWRtaW4iLCJpc3MiOiJhdXRoLXNlcnZpY2UiLCJhdWQiOlsiYXV0aC1zZXJ2aWNlIl0sImV4cCI6MTcyNjE1NDAyNn0.O-hn_rAhsZkgAn0isHnVHNqKu332RgALtH0ZgfDwZRc"
 curl-add:
-	curl -X POST $(DOMAIN)/api/task -H "Content-Type: application/json" -H "ADMIN_PASS_MUST_REMOVE: something" -d '{"name":"task2","description":"description1","status":"pending"}'
+	curl -X POST $(DOMAIN)/api/task \
+	-H "Content-Type: application/json" \
+	-H "Authorization: Bearer $(Authorization)" \
+	-d '{"name":"task2","description":"description1","status":"pending"}'
 
 curl-list:
-	curl -X GET $(DOMAIN)/api/task -H "ADMIN_PASS_MUST_REMOVE: something"
+	curl -X GET $(DOMAIN)/api/task?username=tester \
+	-H "Authorization: Bearer $(Authorization)"
 
 curl-update:
 	curl -X PUT $(DOMAIN)/api/task/66cec55a4232a7c904621038 -H "Content-Type: application/json" -d '{"id":"66cec55a4232a7c904621038", "name":"task2","description":"description1-updated","status":"completed"}'

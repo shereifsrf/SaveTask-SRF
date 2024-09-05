@@ -22,9 +22,9 @@ func SetupUserController(router *gin.RouterGroup, us service.IUser, auth service
 		us:   us,
 		auth: auth,
 	}
-	router.POST("", middleware.AuthMiddleware(nil, false), c.addUser)
+	router.POST("", middleware.AuthMiddleware(nil, false, true), c.addUser)
 
-	router.Use(middleware.AuthMiddleware(auth, true))
+	router.Use(middleware.AuthMiddleware(auth, true, true))
 	{
 		router.GET("", c.listUser)
 		router.GET(":id", c.getUser)

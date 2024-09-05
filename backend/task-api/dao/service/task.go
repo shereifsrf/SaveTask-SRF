@@ -30,7 +30,10 @@ type taskService struct {
 }
 
 func (ts *taskService) ListTask(ctx context.Context, query model.ListTaskQuery) ([]model.Task, error) {
-	filter := primitive.M{}
+	filter := primitive.M{
+		"username": query.Username,
+	}
+
 	common.Log.Print(query)
 	if query.Status != "" {
 		filter["status"] = query.Status

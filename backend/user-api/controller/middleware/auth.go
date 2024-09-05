@@ -8,7 +8,7 @@ import (
 	"github.com/shereifsrf/SaveTask-SRF/user-api/dao/service"
 )
 
-func AuthMiddleware(auth service.IAuth, must bool) gin.HandlerFunc {
+func AuthMiddleware(auth service.IAuth, must bool, needUInfo bool) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		authToken := c.GetHeader(common.Authorization)
 		if authToken == "" {
@@ -20,7 +20,7 @@ func AuthMiddleware(auth service.IAuth, must bool) gin.HandlerFunc {
 		}
 
 		token := authToken[len(common.Bearer)+1:]
-		user, err := auth.ValidateToken(token)
+		user, err := auth.ValidateToken(token, needUInfo)
 		if err != nil {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 			c.Abort()

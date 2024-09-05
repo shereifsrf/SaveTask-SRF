@@ -13,7 +13,7 @@ install:
 	go get -u github.com/joho/godotenv
 
 dev:
-	make dc "-d"
+	make dc $(filter-out $@,$(MAKECMDGOALS)) || echo all good
 	air
 
 ### Kubernetes ###
@@ -58,7 +58,12 @@ helm-show:
 
 ### Docker ###
 dc:
-	docker-compose -f config/docker-compose.yml --env-file config/.env up
+	$(eval commands := $(filter-out $@,$(MAKECMDGOALS)))
+	if [ "$(commands)" = "mac" ]; then \
+		docker-compose -f config/docker-compose.yml --env-file config/.env up -d; \
+	else \
+		docker-compose -f config/docker-compose.yml --env-file config/.env up; \
+	fi
 
 dc-down:
 	docker-compose -f config/docker-compose.yml down
@@ -109,22 +114,22 @@ docker-pull:
 
 # Curl Commands
 DOMAIN := http://localhost:8002
-Authorization := "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InRlc3RlcjIiLCJpc3MiOiJhdXRoLXNlcnZpY2UiLCJhdWQiOlsiYXV0aC1zZXJ2aWNlIl0sImV4cCI6MTcyNjEwODMzOX0.9IThVp1iwPRWvihG1-En5hz7bFB78712NgjAg4wM534"
+Authorization := "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InRlc3RlcjEiLCJyb2xlIjoidXNlciIsImlzcyI6ImF1dGgtc2VydmljZSIsImF1ZCI6WyJhdXRoLXNlcnZpY2UiXSwiZXhwIjoxNzI2MTUzODkxfQ.jtj3f8cqA4OmUWAjw6Eu9t3P2FoLAFhkaq__LhRYJrU"
 curl-add:
 	curl -X POST $(DOMAIN)/api/user \
 		-H "Content-Type: application/json" \
-		-d '{"username": "tester", "password": "password", "role": "admin"}'
+		-d '{"username": "tester1", "password": "password", "role": "admin"}'
 
 curl-list:
 	curl -iX GET $(DOMAIN)/api/user -H "Authorization: Bearer $(Authorization)"
 
 curl-get:
-	curl -X GET $(DOMAIN)/api/user/2
+	curl -X GET $(DOMAIN)/api/user/35 -H "Authorization: Bearer $(Authorization)"
 
 curl-update:
-	curl -X PUT $(DOMAIN)/api/user/4 \
+	curl -X PUT $(DOMAIN)/api/user/1 \
 		-H "Content-Type: application/json" \
-		-d '{"isActive": false, "username": "tester3-c3"}'
+		-d '{"password": "password"}'
 
 curl-delete:
 	curl -X DELETE $(DOMAIN)/api/user/3 -H "Authorization: Bearer $(Authorization)"
@@ -132,7 +137,7 @@ curl-delete:
 curl-login:
 	curl -iX POST $(DOMAIN)/api/auth/login \
 		-H "Content-Type: application/json" \
-		-d '{"username": "tester", "password": "password"}'
+		-d '{"username": "tester1", "password": "password"}'
 
-curl-test:
-	curl -iX GET $(DOMAIN)/api/auth/password
+curl-verify:
+	curl -iX GET $(DOMAIN)/api/auth/verify -H "Authorization: Bearer $(Authorization)"

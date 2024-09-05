@@ -2,6 +2,9 @@ package controller
 
 import (
 	"fmt"
+	"net/http"
+	"shereifsrf/SaveTask-SRF/task-api/common"
+	"shereifsrf/SaveTask-SRF/task-api/controller/middleware"
 	"shereifsrf/SaveTask-SRF/task-api/dao/model"
 	"shereifsrf/SaveTask-SRF/task-api/dao/service"
 	"time"
@@ -14,15 +17,44 @@ type taskController struct {
 	ts service.ITask
 }
 
-func SetupTaskController(router *gin.RouterGroup) {
+func SetupTaskController(router *gin.RouterGroup, us service.IUserApi) {
 	controller := &taskController{
 		ts: service.NewTaskService(),
 	}
-	router.GET("", controller.listTask)
-	router.GET(":id", controller.getTask)
-	router.POST("", controller.addTask)
-	router.PUT(":id", controller.updateTask)
-	router.DELETE(":id", controller.deleteTask)
+
+	router.Use(middleware.AuthMiddleware(us))
+	{
+		router.GET("", controller.listTask)
+		router.GET(":id", controller.getTask)
+		router.POST("", controller.addTask)
+		router.PUT(":id", controller.updateTask)
+		router.DELETE(":id", controller.deleteTask)
+	}
+}
+
+func (t *taskController) authorize(ctx *gin.Context, username *string) *string {
+	lgdUser, ok := ctx.Get(common.UserData)
+	if !ok {
+		ctx.JSON(http.StatusForbidden, gin.H{"error": "Forbidden"})
+		return nil
+	}
+
+	user, ok := lgdUser.(*model.User)
+	if !ok {
+		ctx.JSON(http.StatusForbidden, gin.H{"error": "Forbidden"})
+		return nil
+	}
+
+	if username != nil && *username != "" {
+		if user.Role == string(model.Role_ADMIN) {
+			return username
+		} else if *username != user.Username {
+			ctx.JSON(http.StatusForbidden, gin.H{"error": "Forbidden"})
+			return nil
+		}
+	}
+
+	return &user.Username
 }
 
 func (t *taskController) listTask(c *gin.Context) {
@@ -30,6 +62,12 @@ func (t *taskController) listTask(c *gin.Context) {
 	if err := c.ShouldBindQuery(&query); err != nil {
 		c.JSON(400, gin.H{"error": err.Error()})
 	}
+
+	username := t.authorize(c, query.Username)
+	if username == nil {
+		return
+	}
+	query.Username = username
 
 	if query.Limit == 0 {
 		query.Limit = 10
@@ -73,14 +111,21 @@ func (t *taskController) addTask(c *gin.Context) {
 		c.JSON(400, gin.H{"error": err.Error()})
 		return
 	}
+
+	username := t.authorize(c, &task.Username)
+	if username == nil {
+		return
+	}
+
 	if task.ID == nil {
 		id := primitive.NewObjectID()
 		task.ID = &id
 	}
 	// add order as timestamp
 	task.Order = float64(time.Now().Unix())
-	err := t.ts.AddTask(c, task)
+	task.Username = *username
 
+	err := t.ts.AddTask(c, task)
 	if err != nil {
 		c.JSON(500, gin.H{"error": err.Error()})
 		return
