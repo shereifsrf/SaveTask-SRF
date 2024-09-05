@@ -109,13 +109,14 @@ docker-pull:
 
 # Curl Commands
 DOMAIN := http://localhost:8002
+Authorization := "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InRlc3RlcjIiLCJpc3MiOiJhdXRoLXNlcnZpY2UiLCJhdWQiOlsiYXV0aC1zZXJ2aWNlIl0sImV4cCI6MTcyNjEwODMzOX0.9IThVp1iwPRWvihG1-En5hz7bFB78712NgjAg4wM534"
 curl-add:
 	curl -X POST $(DOMAIN)/api/user \
 		-H "Content-Type: application/json" \
 		-d '{"username": "tester2", "password": "password", "role": "admin"}'
 
 curl-list:
-	curl -iX GET $(DOMAIN)/api/user -H "Authorization: Bearer "
+	curl -iX GET $(DOMAIN)/api/user -H "Authorization: Bearer $(Authorization)"
 
 curl-get:
 	curl -X GET $(DOMAIN)/api/user/2
@@ -126,4 +127,9 @@ curl-update:
 		-d '{"isActive": false, "username": "tester3-c3"}'
 
 curl-delete:
-	curl -X DELETE $(DOMAIN)/api/user/4
+	curl -X DELETE $(DOMAIN)/api/user/3 -H "Authorization: Bearer $(Authorization)"
+
+curl-login:
+	curl -iX POST $(DOMAIN)/api/auth/login \
+		-H "Content-Type: application/json" \
+		-d '{"username": "tester2", "password": "password"}'

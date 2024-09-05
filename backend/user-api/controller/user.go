@@ -14,13 +14,11 @@ import (
 
 type userController struct {
 	us service.IUser
-	js service.IJwt
 }
 
 func SetupUserController(router *gin.RouterGroup, us service.IUser, js service.IJwt) {
 	c := &userController{
 		us: us,
-		js: js,
 	}
 	router.POST("", middleware.AuthMiddleware(nil, false), c.addUser)
 
@@ -201,6 +199,11 @@ func (c *userController) deleteUser(ctx *gin.Context) {
 
 	_, ok := c.authorize(ctx, []model.Role{model.Role_USER}, &exUser.ID)
 	if !ok {
+		return
+	}
+
+	if !exUser.IsActive {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "User already deleted"})
 		return
 	}
 

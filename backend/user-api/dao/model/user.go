@@ -21,3 +21,8 @@ const (
 	Role_ADMIN Role = "admin"
 	Role_USER  Role = "user"
 )
+
+type UserLogin struct {
+	Username string
+	Password string
+}
