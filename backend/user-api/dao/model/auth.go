@@ -6,3 +6,11 @@ type Jwt struct {
 	Username string `json:"username"`
 	jwt.RegisteredClaims
 }
+
+type AuthParam struct {
+	Memory      uint32
+	Iterations  uint32
+	Parallelism uint8
+	SaltLength  uint32
+	KeyLength   uint32
+}

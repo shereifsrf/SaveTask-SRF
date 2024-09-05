@@ -1,14 +1,11 @@
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { TaskModel, TaskStatus } from "../model/task";
 import { constant } from "@/util/constant";
+import { helper } from "@/util/helper";
 
 const taskApi = process.env.NEXT_PUBLIC_TASK_API_URL;
 
-const useQueryTasks = (
-  limit: number,
-  status: TaskStatus | undefined,
-  pass: string
-) => {
+const useQueryTasks = (limit: number, status: TaskStatus | undefined) => {
   return useInfiniteQuery({
     enabled: status !== undefined,
     queryKey: ["tasks", { limit, status }],
@@ -21,7 +18,7 @@ const useQueryTasks = (
 
       const response = await fetch(`${taskApi}/task?${query}`, {
         headers: {
-          [constant.ADMIN_PASS_MUST_REMOVE]: pass,
+          [constant.Authorization]: helper.getLocalStorage(constant.TOKEN, ""),
         },
       });
       let data = await response.json();

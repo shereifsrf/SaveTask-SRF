@@ -1,9 +1,11 @@
 const API_URL = "API_URL";
 const BACKEND_URL = "BACKEND_URL";
-const ADMIN_PASS_MUST_REMOVE = "ADMIN_PASS_MUST_REMOVE";
+const Authorization = "Authorization";
+const TOKEN = "TOKEN";
 
 export const constant = {
   API_URL,
   BACKEND_URL,
-  ADMIN_PASS_MUST_REMOVE,
+  TOKEN,
+  Authorization,
 };

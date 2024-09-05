@@ -13,16 +13,18 @@ import (
 )
 
 type userController struct {
-	us service.IUser
+	us   service.IUser
+	auth service.IAuth
 }
 
-func SetupUserController(router *gin.RouterGroup, us service.IUser, js service.IJwt) {
+func SetupUserController(router *gin.RouterGroup, us service.IUser, auth service.IAuth) {
 	c := &userController{
-		us: us,
+		us:   us,
+		auth: auth,
 	}
 	router.POST("", middleware.AuthMiddleware(nil, false), c.addUser)
 
-	router.Use(middleware.AuthMiddleware(js, true))
+	router.Use(middleware.AuthMiddleware(auth, true))
 	{
 		router.GET("", c.listUser)
 		router.GET(":id", c.getUser)
@@ -139,8 +141,16 @@ func (c *userController) addUser(ctx *gin.Context) {
 	}
 	user.Role = role
 
-	user.IsActive = true
+	hash, salt, err := c.auth.GenerateHashSalt(user.Password, nil)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
 
+	user.Password = hash
+	user.PasswordSalt = salt
+
+	user.IsActive = true
 	user, err = c.us.Add(user)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -177,7 +187,13 @@ func (c *userController) updateUser(ctx *gin.Context) {
 		exUser.Username = user.Username
 	}
 	if user.Password != "" {
-		exUser.Password = user.Password
+		hash, salt, err := c.auth.GenerateHashSalt(user.Password, nil)
+		if err != nil {
+			ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+		exUser.Password = hash
+		exUser.PasswordSalt = salt
 	}
 	exUser.IsActive = user.IsActive
 

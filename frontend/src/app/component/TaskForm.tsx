@@ -30,7 +30,7 @@ const defaultValues: TaskFormSchemaType = {
 
 function TaskForm() {
   const [pushing, setPushing] = useState(false);
-  const { selectedTask, setSelectedTask, nameInputRef, pass } = useTask();
+  const { selectedTask, setSelectedTask, nameInputRef } = useTask();
   const action = selectedTask ? FormAction.Edit : FormAction.Add;
 
   const {
@@ -57,15 +57,11 @@ function TaskForm() {
   const handleSuccess = async (data: TaskFormSchemaType) => {
     setPushing(true);
     if (action === FormAction.Edit) {
-      await updateTask(
-        selectedTask!.id,
-        {
-          ...selectedTask!,
-          ...data,
-        },
-        pass
-      );
-    } else await addTask(data.name, data.description, data.date, pass);
+      await updateTask(selectedTask!.id, {
+        ...selectedTask!,
+        ...data,
+      });
+    } else await addTask(data.name, data.description, data.date);
     console.log("invalidate");
     queryClient.invalidateQueries({ queryKey: ["tasks"] });
     setPushing(false);

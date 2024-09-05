@@ -7,14 +7,14 @@ import (
 )
 
 type authController struct {
-	us service.IUser
-	js service.IJwt
+	us   service.IUser
+	auth service.IAuth
 }
 
-func SetupAuthController(router *gin.RouterGroup, us service.IUser, js service.IJwt) {
+func SetupAuthController(router *gin.RouterGroup, us service.IUser, auth service.IAuth) {
 	c := &authController{
-		us: us,
-		js: js,
+		us:   us,
+		auth: auth,
 	}
 	router.POST("/login", c.login)
 }
@@ -32,12 +32,12 @@ func (c *authController) login(ctx *gin.Context) {
 		return
 	}
 
-	if ul.Password != user.Password {
-		ctx.JSON(400, gin.H{"error": "Invalid password"})
+	if !c.auth.VerifyPassword(ul.Password, user.Password, user.PasswordSalt) {
+		ctx.JSON(400, gin.H{"error": "Invalid username or password"})
 		return
 	}
 
-	token, err := c.js.GenerateToken(user.Username)
+	token, err := c.auth.GenerateToken(user.Username)
 	if err != nil {
 		ctx.JSON(400, gin.H{"error": err.Error()})
 		return

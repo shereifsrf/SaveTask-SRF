@@ -18,20 +18,6 @@ dc-start:
 replica-key:
 	openssl rand -base64 756 > config/dev/some.key
 
-curl-add:
-	curl -X POST -H "Content-Type: application/json" -d '{"name":"task2","description":"description1","status":"pending"}' http://localhost:8080/api/task
-
-curl-list:
-	# $(eval url:=http://localhost:8080)
-	$(eval url:=https://savetask.shereif.com)
-	curl -X GET $(url)/api/task -H "NOTHING_PASS: value"
-
-curl-update:
-	curl -X PUT -H "Content-Type: application/json" -d '{"id":"66cec55a4232a7c904621038", "name":"task2","description":"description1-updated","status":"completed"}' http://localhost:8080/api/task/66cec55a4232a7c904621038
-
-curl-delete:
-	curl -X DELETE http://localhost:8080/api/task/66cec55a4232a7c904621038	
-
 ### Kubernetes ###
 NS := srf-savetask
 make ns:
@@ -77,12 +63,6 @@ helm-show:
 
 
 ### Docker ###
-dc:
-	docker-compose -f config/docker-compose.yml up -d
-
-dc-down:
-	docker-compose -f config/docker-compose.yml down
-
 d-access-vol:
 	docker run -it --rm --volume config_user-db-volume:/var \
 		--name user-db-volume-access alpine /bin/sh
@@ -122,3 +102,18 @@ docker-pull:
 exec:
 	kubectl -n $(NS) \
 		exec -it $(filter-out $@,$(MAKECMDGOALS)) -- /bin/bash
+
+# Curl requests
+DOMAIN := http://localhost:8001
+# DOMAIN := https://savetask.shereif.com
+curl-add:
+	curl -X POST $(DOMAIN)/api/task -H "Content-Type: application/json" -H "ADMIN_PASS_MUST_REMOVE: something" -d '{"name":"task2","description":"description1","status":"pending"}'
+
+curl-list:
+	curl -X GET $(DOMAIN)/api/task -H "ADMIN_PASS_MUST_REMOVE: something"
+
+curl-update:
+	curl -X PUT $(DOMAIN)/api/task/66cec55a4232a7c904621038 -H "Content-Type: application/json" -d '{"id":"66cec55a4232a7c904621038", "name":"task2","description":"description1-updated","status":"completed"}'
+
+curl-delete:
+	curl -X DELETE $(DOMAIN)/api/task/66cec55a4232a7c904621038	

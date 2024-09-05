@@ -113,7 +113,7 @@ Authorization := "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InRlc3Rlc
 curl-add:
 	curl -X POST $(DOMAIN)/api/user \
 		-H "Content-Type: application/json" \
-		-d '{"username": "tester2", "password": "password", "role": "admin"}'
+		-d '{"username": "tester", "password": "password", "role": "admin"}'
 
 curl-list:
 	curl -iX GET $(DOMAIN)/api/user -H "Authorization: Bearer $(Authorization)"
@@ -132,4 +132,7 @@ curl-delete:
 curl-login:
 	curl -iX POST $(DOMAIN)/api/auth/login \
 		-H "Content-Type: application/json" \
-		-d '{"username": "tester2", "password": "password"}'
+		-d '{"username": "tester", "password": "password"}'
+
+curl-test:
+	curl -iX GET $(DOMAIN)/api/auth/password

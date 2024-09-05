@@ -18,6 +18,8 @@ const (
 	JWT_AUDIENCE = "JWT_AUDIENCE"
 	JWT_EXPIRE   = "JWT_EXPIRE"
 
+	PASS_PEPPER = "PASS_PEPPER"
+
 	Authorization = "Authorization"
 	UserData      = "UserData"
 	Bearer        = "Bearer"

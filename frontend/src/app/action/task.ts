@@ -1,14 +1,14 @@
 "use server";
 import { constant } from "@/util/constant";
 import { TaskModel, TaskStatus } from "../model/task";
+import { helper } from "@/util/helper";
 
 const url = process.env.NEXT_PUBLIC_TASK_BACKEND_URL;
 
 export const addTask = async (
   name: string,
   description: string,
-  date: string,
-  pass: string
+  date: string
 ) => {
   const dateC = new Date(date);
   //
@@ -17,7 +17,7 @@ export const addTask = async (
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      [constant.ADMIN_PASS_MUST_REMOVE]: pass,
+      [constant.Authorization]: helper.getLocalStorage(constant.TOKEN, ""),
     },
     body: JSON.stringify({
       name: name,
@@ -32,10 +32,10 @@ export const addTask = async (
   return response.status === 200;
 };
 
-export const getTasks = async (pass: string) => {
+export const getTasks = async () => {
   const response = await fetch(`${url}/task`, {
     headers: {
-      [constant.ADMIN_PASS_MUST_REMOVE]: pass,
+      [constant.Authorization]: helper.getLocalStorage(constant.TOKEN, ""),
     },
     method: "GET",
     cache: "no-store",
@@ -44,10 +44,10 @@ export const getTasks = async (pass: string) => {
   return response.json();
 };
 
-export const deleteTask = async (id: string, pass: string) => {
+export const deleteTask = async (id: string) => {
   const response = await fetch(`${url}/task/${id}`, {
     headers: {
-      [constant.ADMIN_PASS_MUST_REMOVE]: pass,
+      [constant.Authorization]: helper.getLocalStorage(constant.TOKEN, ""),
     },
     method: "DELETE",
   });
@@ -55,7 +55,7 @@ export const deleteTask = async (id: string, pass: string) => {
   return response.status === 200;
 };
 
-export const updateTask = async (id: string, task: TaskModel, pass: string) => {
+export const updateTask = async (id: string, task: TaskModel) => {
   const dateC = new Date(task.date);
   task.date = dateC.toISOString();
 
@@ -63,7 +63,7 @@ export const updateTask = async (id: string, task: TaskModel, pass: string) => {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",
-      [constant.ADMIN_PASS_MUST_REMOVE]: pass,
+      [constant.Authorization]: helper.getLocalStorage(constant.TOKEN, ""),
     },
     body: JSON.stringify(task),
   });

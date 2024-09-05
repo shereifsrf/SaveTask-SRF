@@ -24,6 +24,8 @@ type Environment struct {
 	JWT_ISSUER   string
 	JWT_AUDIENCE string
 	JWT_EXPIRE   uint64
+
+	PASS_PEPPER string
 }
 
 func InitEnv(isDebug bool) {
@@ -47,6 +49,8 @@ func InitEnv(isDebug bool) {
 	} else {
 		Env.JWT_EXPIRE = expire
 	}
+
+	Env.PASS_PEPPER = GetEnv(PASS_PEPPER, true)
 
 	Env.DB_HOST = GetEnv(DB_HOST, true)
 	Env.DB_PORT = GetEnv(DB_PORT, true)

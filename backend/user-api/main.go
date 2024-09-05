@@ -45,10 +45,10 @@ func setupRoutes() *gin.Engine {
 	api := r.Group("/api")
 
 	userService := service.NewUserService()
-	jwtService := service.NewJwtService(userService)
+	authService := service.NewAuthService(userService)
 
-	controller.SetupUserController(api.Group("/user"), userService, jwtService)
-	controller.SetupAuthController(api.Group("/auth"), userService, jwtService)
+	controller.SetupUserController(api.Group("/user"), userService, authService)
+	controller.SetupAuthController(api.Group("/auth"), userService, authService)
 
 	return r
 }

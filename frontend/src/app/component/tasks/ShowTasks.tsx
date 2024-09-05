@@ -8,7 +8,6 @@ import {
   DragEndEvent,
   KeyboardSensor,
   MouseSensor,
-  PointerSensor,
   TouchSensor,
   useSensor,
   useSensors,
@@ -23,13 +22,12 @@ import { useQueryTasks } from "@/action/query";
 import Task from "./Task";
 import { updateTask } from "@/action/task";
 import { useTask } from "../App";
-import { helper } from "@/util/helper";
 
 const LIMIT = 5;
 
 function ShowTasks() {
   const [items, setItems] = React.useState<TaskModel[]>();
-  const { selectedStatus, pass } = useTask();
+  const { selectedStatus } = useTask();
 
   const sensors = useSensors(
     // useSensor(PointerSensor, {
@@ -54,7 +52,7 @@ function ShowTasks() {
   );
 
   const { data, isLoading, isFetching, fetchNextPage, hasNextPage } =
-    useQueryTasks(LIMIT, selectedStatus!, pass);
+    useQueryTasks(LIMIT, selectedStatus!);
 
   useEffect(() => {
     setItems(data?.pages.flat());
@@ -113,7 +111,7 @@ function ShowTasks() {
     const updated = arrayMove(items, activeIdx, overIdx);
     updated[overIdx] = task;
     setItems(updated);
-    await updateTask(task.id, task, pass);
+    await updateTask(task.id, task);
   };
 
   const navText =
