@@ -2,9 +2,11 @@ package controller
 
 import (
 	"fmt"
+	"net/http"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"github.com/shereifsrf/SaveTask-SRF/user-api/common"
 	"github.com/shereifsrf/SaveTask-SRF/user-api/controller/middleware"
 	"github.com/shereifsrf/SaveTask-SRF/user-api/dao/model"
 	"github.com/shereifsrf/SaveTask-SRF/user-api/dao/service"
@@ -15,14 +17,14 @@ type userController struct {
 	js service.IJwt
 }
 
-func SetupUserController(router *gin.RouterGroup) {
+func SetupUserController(router *gin.RouterGroup, us service.IUser, js service.IJwt) {
 	c := &userController{
-		us: service.NewUserService(),
-		js: service.NewJwtService(),
+		us: us,
+		js: js,
 	}
-	router.POST("", c.addUser)
+	router.POST("", middleware.AuthMiddleware(nil, false), c.addUser)
 
-	router.Use(middleware.AuthMiddleware(c.js))
+	router.Use(middleware.AuthMiddleware(js, true))
 	{
 		router.GET("", c.listUser)
 		router.GET(":id", c.getUser)
@@ -31,24 +33,34 @@ func SetupUserController(router *gin.RouterGroup) {
 	}
 }
 
-func (c *userController) listUser(ctx *gin.Context) {
-	users, err := c.us.List()
-	if err != nil {
-		ctx.JSON(500, gin.H{"error": err.Error()})
-		return
-	}
-	ctx.JSON(200, users)
-}
-
-func (c *userController) getUser(ctx *gin.Context) {
-	user, err := c.getUserBy(ctx, nil, nil)
-	if err != nil {
-		message := fmt.Sprintf("User not found, %v", err.Error())
-		ctx.JSON(500, gin.H{"error": message})
-		return
+func (c *userController) authorize(ctx *gin.Context, roles []model.Role, id *uint64) (*model.User, bool) {
+	logged, exists := ctx.Get(common.UserData)
+	if !exists {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": common.WithFnName("User not found")})
+		return nil, false
 	}
 
-	ctx.JSON(200, user)
+	loggedUser, ok := logged.(*model.User)
+	if !ok {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": common.WithFnName("User model not valid")})
+		return nil, false
+	}
+
+	if loggedUser.Role == string(model.Role_ADMIN) {
+		return loggedUser, true
+	}
+
+	if len(roles) > 0 && !common.ContainsString(roles, model.Role(loggedUser.Role)) {
+		ctx.JSON(http.StatusForbidden, gin.H{"error": common.WithFnName("Forbidden for user")})
+		return nil, false
+	}
+
+	if id != nil && *id != loggedUser.ID {
+		ctx.JSON(http.StatusForbidden, gin.H{"error": common.WithFnName("Forbidden for user")})
+		return nil, false
+	}
+
+	return loggedUser, true
 }
 
 func (c *userController) getUserBy(ctx *gin.Context, id *uint64, username *string) (*model.User, error) {
@@ -61,7 +73,6 @@ func (c *userController) getUserBy(ctx *gin.Context, id *uint64, username *strin
 		paramId := ctx.Param("id")
 		userId, err = strconv.ParseUint(paramId, 10, 64)
 		if err != nil {
-			ctx.JSON(400, gin.H{"error": "Invalid ID"})
 			return nil, err
 		}
 	}
@@ -78,27 +89,63 @@ func (c *userController) getUserBy(ctx *gin.Context, id *uint64, username *strin
 	return user, nil
 }
 
+func (c *userController) listUser(ctx *gin.Context) {
+	_, ok := c.authorize(ctx, []model.Role{model.Role_ADMIN}, nil)
+	if !ok {
+		return
+	}
+
+	users, err := c.us.List()
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	ctx.JSON(200, users)
+}
+
+func (c *userController) getUser(ctx *gin.Context) {
+	user, err := c.getUserBy(ctx, nil, nil)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	_, ok := c.authorize(ctx, []model.Role{model.Role_USER}, &user.ID)
+	if !ok {
+		return
+	}
+
+	ctx.JSON(200, user)
+}
+
 func (c *userController) addUser(ctx *gin.Context) {
 	var user model.User
 	err := ctx.BindJSON(&user)
 	if err != nil {
-		ctx.JSON(400, gin.H{"error": err.Error()})
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
 	// check if the user exist
-	exUser, err := c.getUserBy(ctx, nil, &user.Username)
-	if err == nil {
-		message := fmt.Sprint("User with username ", exUser.Username, " already exist")
-		ctx.JSON(400, gin.H{"error": message})
+	exUser, _ := c.getUserBy(ctx, nil, &user.Username)
+	if exUser != nil {
+		message := fmt.Sprintf("User with username: %s, already exist, err: %v", user.Username, err)
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": message})
 		return
 	}
+
+	role := string(model.Role_USER)
+	lgdUser, ok := c.authorize(ctx, []model.Role{model.Role_ADMIN}, nil)
+	if ok && lgdUser.Role == string(user.Role) {
+		role = lgdUser.Role
+	}
+	user.Role = role
 
 	user.IsActive = true
 
 	user, err = c.us.Add(user)
 	if err != nil {
-		ctx.JSON(500, gin.H{"error": err.Error()})
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
@@ -113,13 +160,18 @@ func (c *userController) updateUser(ctx *gin.Context) {
 
 	err = ctx.BindJSON(&user)
 	if err != nil {
-		ctx.JSON(400, gin.H{"error": err.Error()})
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
 	exUser, err := c.getUserBy(ctx, nil, nil)
 	if err != nil {
-		ctx.JSON(400, gin.H{"error": "User not found"})
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	_, ok := c.authorize(ctx, []model.Role{model.Role_USER}, &user.ID)
+	if !ok {
 		return
 	}
 
@@ -133,7 +185,7 @@ func (c *userController) updateUser(ctx *gin.Context) {
 
 	user, err = c.us.Update(exUser)
 	if err != nil {
-		ctx.JSON(500, gin.H{"error": err.Error()})
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
@@ -141,16 +193,20 @@ func (c *userController) updateUser(ctx *gin.Context) {
 }
 
 func (c *userController) deleteUser(ctx *gin.Context) {
-	id := ctx.Param("id")
-	idUint, err := strconv.ParseUint(id, 10, 64)
+	exUser, err := c.getUserBy(ctx, nil, nil)
 	if err != nil {
-		ctx.JSON(400, gin.H{"error": "Invalid ID"})
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	err = c.us.Delete(idUint)
+	_, ok := c.authorize(ctx, []model.Role{model.Role_USER}, &exUser.ID)
+	if !ok {
+		return
+	}
+
+	err = c.us.Delete(exUser.ID)
 	if err != nil {
-		ctx.JSON(500, gin.H{"error": err.Error()})
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 

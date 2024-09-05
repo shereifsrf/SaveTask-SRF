@@ -112,10 +112,10 @@ DOMAIN := http://localhost:8002
 curl-add:
 	curl -X POST $(DOMAIN)/api/user \
 		-H "Content-Type: application/json" \
-		-d '{"username": "tester3-c1", "password": "password", "role": "user"}'
+		-d '{"username": "tester2", "password": "password", "role": "admin"}'
 
 curl-list:
-	curl -X GET $(DOMAIN)/api/user
+	curl -iX GET $(DOMAIN)/api/user -H "Authorization: Bearer "
 
 curl-get:
 	curl -X GET $(DOMAIN)/api/user/2

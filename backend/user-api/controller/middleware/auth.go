@@ -8,18 +8,19 @@ import (
 	"github.com/shereifsrf/SaveTask-SRF/user-api/dao/service"
 )
 
-func AuthMiddleware(jwtService service.IJwt) gin.HandlerFunc {
+func AuthMiddleware(js service.IJwt, must bool) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		authToken := c.GetHeader(common.Authorization)
-		authToken = authToken[len("Bearer "):]
 		if authToken == "" {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Authorization token is required"})
-			c.Abort()
+			if must {
+				c.JSON(http.StatusUnauthorized, gin.H{"error": "Authorization token is required"})
+				c.Abort()
+			}
 			return
 		}
 
-		// validate token
-		user, err := jwtService.ValidateToken(authToken)
+		token := authToken[len(common.Bearer)+1:]
+		user, err := js.ValidateToken(token)
 		if err != nil {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 			c.Abort()

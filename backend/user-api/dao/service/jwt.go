@@ -15,11 +15,15 @@ type IJwt interface {
 	ValidateToken(token string) (*model.User, error)
 }
 
-func NewJwtService() IJwt {
-	return &jwtService{}
+func NewJwtService(userService IUser) IJwt {
+	return &jwtService{
+		us: userService,
+	}
 }
 
-type jwtService struct{}
+type jwtService struct {
+	us IUser
+}
 
 func (s *jwtService) GenerateToken(username string) (string, error) {
 	// get token that contain jwt properties
@@ -57,5 +61,11 @@ func (s *jwtService) ValidateToken(token string) (*model.User, error) {
 		return nil, errors.New(http.StatusText(http.StatusUnauthorized))
 	}
 
-	return &model.User{Username: claims.Username}, nil
+	// check if the user exist
+	user, err := s.us.Get(0, &claims.Username)
+	if err != nil {
+		return nil, err
+	}
+
+	return user, nil
 }

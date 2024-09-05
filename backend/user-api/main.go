@@ -9,6 +9,7 @@ import (
 	"github.com/shereifsrf/SaveTask-SRF/user-api/common"
 	"github.com/shereifsrf/SaveTask-SRF/user-api/controller"
 	"github.com/shereifsrf/SaveTask-SRF/user-api/dao"
+	"github.com/shereifsrf/SaveTask-SRF/user-api/dao/service"
 )
 
 func main() {
@@ -42,7 +43,11 @@ func setupRoutes() *gin.Engine {
 	}))
 
 	api := r.Group("/api")
-	controller.SetupUserController(api.Group("/user"))
+
+	userService := service.NewUserService()
+	jwtService := service.NewJwtService(userService)
+
+	controller.SetupUserController(api.Group("/user"), userService, jwtService)
 
 	return r
 }

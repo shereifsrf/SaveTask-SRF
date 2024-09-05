@@ -1,6 +1,8 @@
 package model
 
-import "time"
+import (
+	"time"
+)
 
 type User struct {
 	ID       uint64 `gorm:"primaryKey"`
@@ -12,3 +14,10 @@ type User struct {
 	CreatedAt time.Time
 	UpdatedAt time.Time
 }
+
+type Role string
+
+const (
+	Role_ADMIN Role = "admin"
+	Role_USER  Role = "user"
+)
