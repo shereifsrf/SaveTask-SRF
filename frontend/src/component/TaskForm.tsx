@@ -4,11 +4,12 @@ import { z } from "zod";
 import { FieldError, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import React, { forwardRef, useEffect, useState } from "react";
-import { addTask, updateTask } from "../action/task";
-import { DateFormat, helper } from "../util/helper";
+import { addTask, updateTask } from "@/action/task";
+import { DateFormat, helper } from "@/util/helper";
 import { useQueryClient } from "@tanstack/react-query";
 import { useTask } from "./App";
-import ResetIcon from "../icons/ResetIcon";
+import ResetIcon from "@/icon/ResetIcon";
+import { constant } from "@/util/constant";
 
 enum FormAction {
   Add = "Add",
@@ -57,11 +58,21 @@ function TaskForm() {
   const handleSuccess = async (data: TaskFormSchemaType) => {
     setPushing(true);
     if (action === FormAction.Edit) {
-      await updateTask(selectedTask!.id, {
-        ...selectedTask!,
-        ...data,
-      });
-    } else await addTask(data.name, data.description, data.date);
+      await updateTask(
+        selectedTask!.id,
+        {
+          ...selectedTask!,
+          ...data,
+        },
+        helper.getLocalStorage(constant.TOKEN, "")
+      );
+    } else
+      await addTask(
+        data.name,
+        data.description,
+        data.date,
+        helper.getLocalStorage(constant.TOKEN, "")
+      );
     console.log("invalidate");
     queryClient.invalidateQueries({ queryKey: ["tasks"] });
     setPushing(false);

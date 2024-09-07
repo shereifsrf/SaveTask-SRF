@@ -102,6 +102,11 @@ func (t *taskController) getTask(c *gin.Context) {
 		return
 	}
 
+	username := t.authorize(c, &task.Username)
+	if username == nil {
+		return
+	}
+
 	c.JSON(200, task)
 }
 
@@ -147,9 +152,26 @@ func (t *taskController) updateTask(c *gin.Context) {
 		return
 	}
 
-	oldTask, err := t.ts.GetTask(c, *task.ID)
+	// check if the status is valid
+	if !model.IsEnum_Status(string(task.Status)) {
+		c.JSON(400, gin.H{"error": "status is invalid"})
+		return
+	}
+
+	taskID, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
+
+	oldTask, err := t.ts.GetTask(c, taskID)
 	if err != nil {
 		c.JSON(404, gin.H{"error": fmt.Sprintf("task with id %s not found, err: %v", id, err.Error())})
+		return
+	}
+
+	username := t.authorize(c, &oldTask.Username)
+	if username == nil {
 		return
 	}
 
@@ -158,11 +180,6 @@ func (t *taskController) updateTask(c *gin.Context) {
 		task.Order = float64(time.Now().Unix())
 	}
 
-	taskID, err := primitive.ObjectIDFromHex(id)
-	if err != nil {
-		c.JSON(400, gin.H{"error": err.Error()})
-		return
-	}
 	task.ID = &taskID
 
 	err = t.ts.UpdateTask(c, task)
@@ -184,6 +201,17 @@ func (t *taskController) deleteTask(c *gin.Context) {
 	taskID, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
 		c.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
+
+	task, err := t.ts.GetTask(c, taskID)
+	if err != nil {
+		c.JSON(404, gin.H{"error": fmt.Sprintf("task with id %s not found, err: %v", id, err.Error())})
+		return
+	}
+
+	username := t.authorize(c, &task.Username)
+	if username == nil {
 		return
 	}
 

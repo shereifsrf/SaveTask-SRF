@@ -30,21 +30,27 @@ func setupRoutes() *gin.Engine {
 	gin.SetMode(common.Env.GIN_MODE)
 	r := gin.Default()
 
-	allowOrigins := []string{"http://localhost:3000", "http://localhost:3001"}
+	var allowOrigins []string
 	if gin.IsDebugging() {
 		extraOrigins := os.Getenv("ALLOW_ORIGINS")
 		extraOriginsSlice := strings.Split(extraOrigins, ",")
 		allowOrigins = append(allowOrigins, extraOriginsSlice...)
+		// print the extra origins
+		for _, origin := range allowOrigins {
+			common.Log.Printf("Extra origin: %v", origin)
+		}
 	}
 
-	r.Use(cors.New(cors.Config{
-		AllowOrigins:     allowOrigins,
-		AllowMethods:     []string{"GET"},
-		AllowHeaders:     []string{"Origin"},
-		ExposeHeaders:    []string{"Content-Length"},
-		AllowCredentials: true,
-		MaxAge:           12 * time.Hour,
-	}))
+	if len(allowOrigins) != 0 {
+		r.Use(cors.New(cors.Config{
+			AllowOrigins:     allowOrigins,
+			AllowMethods:     []string{"GET"},
+			AllowHeaders:     []string{"Origin", common.Authorization},
+			ExposeHeaders:    []string{"Content-Length"},
+			AllowCredentials: true,
+			MaxAge:           12 * time.Hour,
+		}))
+	}
 
 	userApiService := service.NewUserApiService()
 

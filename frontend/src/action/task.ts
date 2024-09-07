@@ -1,6 +1,6 @@
 "use server";
 import { constant } from "@/util/constant";
-import { TaskModel, TaskStatus } from "../model/task";
+import { TaskModel, TaskStatus } from "@/model/task";
 import { helper } from "@/util/helper";
 
 const url = process.env.NEXT_PUBLIC_TASK_BACKEND_URL;
@@ -8,16 +8,16 @@ const url = process.env.NEXT_PUBLIC_TASK_BACKEND_URL;
 export const addTask = async (
   name: string,
   description: string,
-  date: string
+  date: string,
+  token: string
 ) => {
   const dateC = new Date(date);
-  //
   // call post method to url to add task using fetch
   const response = await fetch(`${url}/task`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      [constant.Authorization]: helper.getLocalStorage(constant.TOKEN, ""),
+      [constant.Authorization]: token,
     },
     body: JSON.stringify({
       name: name,
@@ -32,10 +32,10 @@ export const addTask = async (
   return response.status === 200;
 };
 
-export const getTasks = async () => {
+export const getTasks = async (token: string) => {
   const response = await fetch(`${url}/task`, {
     headers: {
-      [constant.Authorization]: helper.getLocalStorage(constant.TOKEN, ""),
+      [constant.Authorization]: token,
     },
     method: "GET",
     cache: "no-store",
@@ -44,10 +44,10 @@ export const getTasks = async () => {
   return response.json();
 };
 
-export const deleteTask = async (id: string) => {
+export const deleteTask = async (id: string, token: string) => {
   const response = await fetch(`${url}/task/${id}`, {
     headers: {
-      [constant.Authorization]: helper.getLocalStorage(constant.TOKEN, ""),
+      [constant.Authorization]: token,
     },
     method: "DELETE",
   });
@@ -55,7 +55,11 @@ export const deleteTask = async (id: string) => {
   return response.status === 200;
 };
 
-export const updateTask = async (id: string, task: TaskModel) => {
+export const updateTask = async (
+  id: string,
+  task: TaskModel,
+  token: string
+) => {
   const dateC = new Date(task.date);
   task.date = dateC.toISOString();
 
@@ -63,7 +67,7 @@ export const updateTask = async (id: string, task: TaskModel) => {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",
-      [constant.Authorization]: helper.getLocalStorage(constant.TOKEN, ""),
+      [constant.Authorization]: token,
     },
     body: JSON.stringify(task),
   });

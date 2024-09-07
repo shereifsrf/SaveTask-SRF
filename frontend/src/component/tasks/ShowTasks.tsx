@@ -22,6 +22,10 @@ import { useQueryTasks } from "@/action/query";
 import Task from "./Task";
 import { updateTask } from "@/action/task";
 import { useTask } from "../App";
+import { helper } from "@/util/helper";
+import { constant } from "@/util/constant";
+import { ApiError } from "@/model/error";
+import { redirect } from "next/navigation";
 
 const LIMIT = 5;
 
@@ -51,8 +55,15 @@ function ShowTasks() {
     })
   );
 
-  const { data, isLoading, isFetching, fetchNextPage, hasNextPage } =
-    useQueryTasks(LIMIT, selectedStatus!);
+  const {
+    data,
+    isLoading,
+    isFetching,
+    fetchNextPage,
+    hasNextPage,
+    isError,
+    error,
+  } = useQueryTasks(LIMIT, selectedStatus!);
 
   useEffect(() => {
     setItems(data?.pages.flat());
@@ -111,7 +122,7 @@ function ShowTasks() {
     const updated = arrayMove(items, activeIdx, overIdx);
     updated[overIdx] = task;
     setItems(updated);
-    await updateTask(task.id, task);
+    await updateTask(task.id, task, helper.getLocalStorage(constant.TOKEN, ""));
   };
 
   const navText =
@@ -120,6 +131,10 @@ function ShowTasks() {
         ? "No More"
         : "Load More"
       : "Loading...";
+
+  if (isError && error instanceof ApiError && error.status === 401) {
+    redirect("/login");
+  }
   return (
     <section className="touch-manipulation">
       <DndContext

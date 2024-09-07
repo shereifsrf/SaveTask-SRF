@@ -46,7 +46,7 @@ func (c *userController) authorize(ctx *gin.Context, roles []model.Role, id *uin
 		return nil, false
 	}
 
-	if loggedUser.Role == string(model.Role_ADMIN) {
+	if loggedUser.Role == model.Role_ADMIN {
 		return loggedUser, true
 	}
 
@@ -134,9 +134,9 @@ func (c *userController) addUser(ctx *gin.Context) {
 		return
 	}
 
-	role := string(model.Role_USER)
+	role := model.Role_USER
 	lgdUser, ok := c.authorize(ctx, []model.Role{model.Role_ADMIN}, nil)
-	if ok && lgdUser.Role == string(user.Role) {
+	if ok && lgdUser.Role == user.Role {
 		role = lgdUser.Role
 	}
 	user.Role = role

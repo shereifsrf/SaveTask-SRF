@@ -31,3 +31,11 @@ type ListTaskQuery struct {
 	Status   Enum_Status `form:"status"`
 	Username *string     `form:"username"`
 }
+
+func IsEnum_Status(s string) bool {
+	switch s {
+	case string(Enum_Status_Pending), string(Enum_Status_Done):
+		return true
+	}
+	return false
+}

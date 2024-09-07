@@ -1,6 +1,6 @@
-import App from "./component/App";
+import App from "@/component/App";
 
-export default function Home() {
+export default function HomePage() {
   return (
     <main className="min-h-screen">
       <div className="p-2 py-3">

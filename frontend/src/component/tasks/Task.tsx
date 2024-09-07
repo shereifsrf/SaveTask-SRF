@@ -2,17 +2,18 @@
 
 import { useQueryClient } from "@tanstack/react-query";
 import { deleteTask, updateTask } from "@/action/task";
-import BackIcon from "@/icons/BackIcon";
-import DeleteIcon from "@/icons/DeleteIcon";
-import TickIcon from "@/icons/TickIcon";
-import MoreIcon from "@/icons/MoreIcon";
+import BackIcon from "@/icon/BackIcon";
+import DeleteIcon from "@/icon/DeleteIcon";
+import TickIcon from "@/icon/TickIcon";
+import MoreIcon from "@/icon/MoreIcon";
 import { TaskModel, TaskStatus } from "@/model/task";
 import { helper } from "@/util/helper";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import EditIcon from "@/icons/EditIcon";
+import EditIcon from "@/icon/EditIcon";
 import { useEffect, useRef, useState } from "react";
 import { useTask } from "../App";
+import { constant } from "@/util/constant";
 
 const Task = ({ task }: { task: TaskModel }) => {
   const [expand, setExpand] = useState(false);
@@ -20,7 +21,7 @@ const Task = ({ task }: { task: TaskModel }) => {
   const descriptionRef = useRef<HTMLParagraphElement>(null);
 
   const queryClient = useQueryClient();
-  const { setSelectedTask, nameInputRef, pass } = useTask();
+  const { setSelectedTask, nameInputRef } = useTask();
 
   useEffect(() => {
     const element = descriptionRef.current;
@@ -41,7 +42,7 @@ const Task = ({ task }: { task: TaskModel }) => {
 
   const handleDeleteIcon = async () => {
     setSelectedTask(undefined);
-    await deleteTask(task.id, pass);
+    await deleteTask(task.id, helper.getLocalStorage(constant.TOKEN, ""));
     queryClient.invalidateQueries({ queryKey: ["tasks"] });
   };
 
@@ -54,7 +55,11 @@ const Task = ({ task }: { task: TaskModel }) => {
           ? TaskStatus.Done
           : TaskStatus.Pending,
     };
-    await updateTask(task.id, taskToUpdate, pass);
+    await updateTask(
+      task.id,
+      taskToUpdate,
+      helper.getLocalStorage(constant.TOKEN, "")
+    );
     queryClient.invalidateQueries({ queryKey: ["tasks"] });
   };
 

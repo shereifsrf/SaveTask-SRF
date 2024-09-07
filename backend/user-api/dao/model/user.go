@@ -9,7 +9,7 @@ type User struct {
 	Username     string `gorm:"unique"`
 	Password     string
 	PasswordSalt string
-	Role         string
+	Role         Role
 	IsActive     bool
 
 	CreatedAt time.Time

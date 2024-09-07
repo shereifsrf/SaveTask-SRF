@@ -111,7 +111,10 @@ exec:
 # Curl requests
 DOMAIN := http://localhost:8001
 # DOMAIN := https://savetask.shereif.com
+# admin
 Authorization := "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InRlc3RlcjEiLCJyb2xlIjoiYWRtaW4iLCJpc3MiOiJhdXRoLXNlcnZpY2UiLCJhdWQiOlsiYXV0aC1zZXJ2aWNlIl0sImV4cCI6MTcyNjE1NDAyNn0.O-hn_rAhsZkgAn0isHnVHNqKu332RgALtH0ZgfDwZRc"
+# user
+# Authorization := "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InRlc3RlciIsInJvbGUiOiJ1c2VyIiwiaXNzIjoiYXV0aC1zZXJ2aWNlIiwiYXVkIjpbImF1dGgtc2VydmljZSJdLCJleHAiOjE3MjYyMTgzNzV9.OiSrax2lrL3B-XBm_4fCp0SwAClwCkzYmW5GMl8ZUsw"
 curl-add:
 	curl -X POST $(DOMAIN)/api/task \
 	-H "Content-Type: application/json" \
@@ -123,7 +126,14 @@ curl-list:
 	-H "Authorization: Bearer $(Authorization)"
 
 curl-update:
-	curl -X PUT $(DOMAIN)/api/task/66cec55a4232a7c904621038 -H "Content-Type: application/json" -d '{"id":"66cec55a4232a7c904621038", "name":"task2","description":"description1-updated","status":"completed"}'
+	curl -X PUT $(DOMAIN)/api/task/66d9c85283dc64229e98da5a -H "Content-Type: application/json" -d '{"name":"task2-update","description":"description1-updated","status":"done"}' \
+	-H "Authorization: Bearer $(Authorization)"
+
 
 curl-delete:
-	curl -X DELETE $(DOMAIN)/api/task/66cec55a4232a7c904621038	
+	curl -X DELETE $(DOMAIN)/api/task/66d9c8ef12f3e55d7ef70067 \
+	-H "Authorization: Bearer $(Authorization)"
+
+curl-get:
+	curl -iX GET $(DOMAIN)/api/task/66d9c85283dc64229e98da5a \
+	-H "Authorization: Bearer $(Authorization)"

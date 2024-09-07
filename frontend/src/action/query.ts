@@ -1,7 +1,9 @@
 import { useInfiniteQuery } from "@tanstack/react-query";
-import { TaskModel, TaskStatus } from "../model/task";
+import { TaskModel, TaskStatus } from "@/model/task";
 import { constant } from "@/util/constant";
 import { helper } from "@/util/helper";
+import { redirect } from "next/navigation";
+import { ApiError } from "@/model/error";
 
 const taskApi = process.env.NEXT_PUBLIC_TASK_API_URL;
 
@@ -21,6 +23,12 @@ const useQueryTasks = (limit: number, status: TaskStatus | undefined) => {
           [constant.Authorization]: helper.getLocalStorage(constant.TOKEN, ""),
         },
       });
+      if (!response.ok)
+        throw new ApiError(
+          response.status,
+          `Failed to fetch tasks: ${response.statusText}`
+        );
+
       let data = await response.json();
       data = data ? (data as TaskModel[]) : [];
       return data;
@@ -29,6 +37,14 @@ const useQueryTasks = (limit: number, status: TaskStatus | undefined) => {
     getNextPageParam: (lastPage, _, lastPageParam) => {
       if (lastPage.length < limit) return undefined;
       return lastPageParam + 1;
+    },
+    retry: (failureCount, error) => {
+      if (error instanceof ApiError) {
+        if (error.status === 401) {
+          return false;
+        }
+      }
+      return failureCount < 3;
     },
   });
 };
