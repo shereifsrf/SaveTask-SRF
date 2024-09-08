@@ -4,7 +4,7 @@ import React from "react";
 
 export default function RegisterPage() {
   return (
-    <div>
+    <div className="w-full flex justify-center align-middle h-screen items-center">
       <LogForm action={LogFormAction.Register} />
     </div>
   );

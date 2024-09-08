@@ -10,3 +10,9 @@
 body {
   background-color: var(--color-primary);
 }
+
+/* @layer utilities {
+  .text-error {
+    @apply text-pretty text-[10px] text-red-500;
+  }
+} */

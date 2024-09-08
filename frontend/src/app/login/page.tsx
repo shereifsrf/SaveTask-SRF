@@ -4,7 +4,7 @@ import React from "react";
 
 export default function LoginPage() {
   return (
-    <div>
+    <div className="flex h-screen w-full items-center justify-center align-middle">
       <LogForm action={LogFormAction.Login} />
     </div>
   );

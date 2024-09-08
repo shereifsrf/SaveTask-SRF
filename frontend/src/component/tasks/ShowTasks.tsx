@@ -18,9 +18,9 @@ import {
   sortableKeyboardCoordinates,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
-import { useQueryTasks } from "@/action/query";
+import { useQueryTasks } from "@/action/client/task";
 import Task from "./Task";
-import { updateTask } from "@/action/task";
+import { updateTask } from "@/action/server/task";
 import { useTask } from "../App";
 import { helper } from "@/util/helper";
 import { constant } from "@/util/constant";
@@ -52,7 +52,7 @@ function ShowTasks() {
       activationConstraint: {
         distance: 5,
       },
-    })
+    }),
   );
 
   const {
@@ -146,7 +146,7 @@ function ShowTasks() {
           items={items ?? []}
           strategy={verticalListSortingStrategy}
         >
-          <ul className="flex flex-col gap-2 ">
+          <ul className="flex flex-col gap-2">
             {items?.map((task) => {
               return (
                 <li key={task.id} className="">
@@ -157,9 +157,9 @@ function ShowTasks() {
           </ul>
         </SortableContext>
       </DndContext>
-      <div className="p-1 flex gap-2 mt-2">
+      <div className="mt-2 flex gap-2 p-1">
         <button
-          className="flex w-full justify-center enabled:hover:bg-primary p-2 enabled:hover:text-white bg-secondary disabled:text-slate-400 text-sm rounded-md hover:ring-2 hover:ring-secondary "
+          className="flex w-full justify-center rounded-md bg-secondary p-2 text-sm hover:ring-2 hover:ring-secondary enabled:hover:bg-primary enabled:hover:text-white disabled:text-slate-400"
           onClick={() => fetchNextPage()}
           disabled={!hasNextPage || isFetching || isLoading}
         >

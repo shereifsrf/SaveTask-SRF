@@ -36,7 +36,6 @@ func SetupUserController(router *gin.RouterGroup, us service.IUser, auth service
 func (c *userController) authorize(ctx *gin.Context, roles []model.Role, id *uint64) (*model.User, bool) {
 	logged, exists := ctx.Get(common.UserData)
 	if !exists {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": common.WithFnName("User not found")})
 		return nil, false
 	}
 
@@ -129,7 +128,7 @@ func (c *userController) addUser(ctx *gin.Context) {
 	// check if the user exist
 	exUser, _ := c.getUserBy(ctx, nil, &user.Username)
 	if exUser != nil {
-		message := fmt.Sprintf("User with username: %s, already exist, err: %v", user.Username, err)
+		message := fmt.Sprintf("User with username: %s, already exist", user.Username)
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": message})
 		return
 	}
@@ -157,7 +156,7 @@ func (c *userController) addUser(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(200, user)
+	ctx.JSON(200, gin.H{"username": user.Username})
 }
 
 func (c *userController) updateUser(ctx *gin.Context) {

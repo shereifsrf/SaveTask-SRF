@@ -53,7 +53,7 @@ func (t *taskController) authorize(ctx *gin.Context, id *uint64) *uint64 {
 		return id
 	}
 
-	if id != &user.ID {
+	if *id != user.ID {
 		ctx.JSON(http.StatusForbidden, gin.H{"error": "Forbidden"})
 		return nil
 	}

@@ -1,7 +1,6 @@
 "use server";
 import { constant } from "@/util/constant";
 import { TaskModel, TaskStatus } from "@/model/task";
-import { helper } from "@/util/helper";
 
 const url = process.env.NEXT_PUBLIC_TASK_BACKEND_URL;
 
@@ -9,7 +8,7 @@ export const addTask = async (
   name: string,
   description: string,
   date: string,
-  token: string
+  token: string,
 ) => {
   const dateC = new Date(date);
   // call post method to url to add task using fetch
@@ -58,7 +57,7 @@ export const deleteTask = async (id: string, token: string) => {
 export const updateTask = async (
   id: string,
   task: TaskModel,
-  token: string
+  token: string,
 ) => {
   const dateC = new Date(task.date);
   task.date = dateC.toISOString();

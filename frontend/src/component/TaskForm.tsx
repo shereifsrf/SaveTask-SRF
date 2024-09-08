@@ -1,15 +1,17 @@
 "use client";
 
 import { z } from "zod";
-import { FieldError, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import React, { forwardRef, useEffect, useState } from "react";
-import { addTask, updateTask } from "@/action/task";
+import React, { useEffect, useState } from "react";
+import { addTask, updateTask } from "@/action/server/task";
 import { DateFormat, helper } from "@/util/helper";
 import { useQueryClient } from "@tanstack/react-query";
 import { useTask } from "./App";
 import ResetIcon from "@/icon/ResetIcon";
 import { constant } from "@/util/constant";
+import Input from "@/component/form/Input";
+import Button from "./form/Button";
 
 enum FormAction {
   Add = "Add",
@@ -64,14 +66,14 @@ function TaskForm() {
           ...selectedTask!,
           ...data,
         },
-        helper.getLocalStorage(constant.TOKEN, "")
+        helper.getLocalStorage(constant.TOKEN, ""),
       );
     } else
       await addTask(
         data.name,
         data.description,
         data.date,
-        helper.getLocalStorage(constant.TOKEN, "")
+        helper.getLocalStorage(constant.TOKEN, ""),
       );
     console.log("invalidate");
     queryClient.invalidateQueries({ queryKey: ["tasks"] });
@@ -89,7 +91,7 @@ function TaskForm() {
 
   return (
     <form
-      className="w-[15rem] sm:w-full flex flex-col gap-2"
+      className="sm:w-full flex w-[15rem] flex-col gap-2"
       onSubmit={handleSubmit(handleSuccess, handleError)}
     >
       <Input
@@ -117,56 +119,24 @@ function TaskForm() {
         error={errors.date}
       />
       <div className="flex w-full gap-2 p-1">
-        <button
+        <Button
           disabled={pushing}
           type="submit"
-          className="disabled:bg-secondary w-full bg-primary ring-secondary ring text-white py-1 rounded-lg"
+          className="w-full disabled:bg-secondary"
         >
           {action}
-        </button>
-        <button
+        </Button>
+        <Button
           disabled={pushing}
           type="button"
           onClick={handleReset}
-          className="flex-1 px-1 bg-slate-600 w-full bg-primary ring-secondary ring text-white py-1 rounded-lg"
+          className="flex-1 bg-slate-600 px-1"
         >
           <ResetIcon />
-        </button>
+        </Button>
       </div>
     </form>
   );
 }
-
-interface InputProps
-  extends React.InputHTMLAttributes<HTMLInputElement | HTMLTextAreaElement> {
-  error?: FieldError;
-  multiline?: boolean;
-}
-
-const Input = forwardRef<HTMLInputElement | HTMLTextAreaElement, InputProps>(
-  ({ multiline, error, ...props }, ref) => {
-    const twClass =
-      "w-full rounded-lg p-2 outline-none border-2 focus:border-slate-700";
-    return (
-      <div className="w-full flex justify-center ">
-        {multiline ? (
-          <textarea
-            className={helper.cn(props.className, twClass)}
-            {...props}
-            ref={ref as React.Ref<HTMLTextAreaElement>}
-          />
-        ) : (
-          <input
-            {...props}
-            className={helper.cn(props.className, twClass)}
-            ref={ref as React.Ref<HTMLInputElement>}
-          />
-        )}
-        {error && <p className="text-[15px] text-red-500">{error.message}</p>}
-      </div>
-    );
-  }
-);
-Input.displayName = "Input";
 
 export default TaskForm;

@@ -1,17 +1,12 @@
 "use client";
 
-import {
-  QueryCache,
-  QueryClient,
-  QueryClientProvider,
-} from "@tanstack/react-query";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import React, { createContext, useContext, useEffect, useRef } from "react";
 import TaskForm from "./TaskForm";
 import { TaskModel, TaskStatus } from "@/model/task";
 import ShowTasks from "./tasks/ShowTasks";
 import TaskStatuses from "./tasks/TaskStatus";
 import { helper } from "@/util/helper";
-import { ApiError } from "@/model/error";
 
 function App() {
   return (
@@ -50,7 +45,10 @@ function TaskProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     // get status from localStorage
     setSelectedStatusExtra(
-      helper.getLocalStorage("selectedStatus", TaskStatus.Pending) as TaskStatus
+      helper.getLocalStorage(
+        "selectedStatus",
+        TaskStatus.Pending,
+      ) as TaskStatus,
     );
   }, []);
 
@@ -68,7 +66,7 @@ function TaskProvider({ children }: { children: React.ReactNode }) {
 const AppClient = () => {
   return (
     <QueryClientProvider client={queryClient}>
-      <div className="flex w-full flex-col sm:flex-row gap-x-2 gap-y-4">
+      <div className="sm:flex-row flex w-full flex-col gap-x-2 gap-y-4">
         <div className="sm:w-1/3 flex justify-center">
           <TaskForm />
         </div>

@@ -1,7 +1,7 @@
 "use client";
 
 import { useQueryClient } from "@tanstack/react-query";
-import { deleteTask, updateTask } from "@/action/task";
+import { deleteTask, updateTask } from "@/action/server/task";
 import BackIcon from "@/icon/BackIcon";
 import DeleteIcon from "@/icon/DeleteIcon";
 import TickIcon from "@/icon/TickIcon";
@@ -58,7 +58,7 @@ const Task = ({ task }: { task: TaskModel }) => {
     await updateTask(
       task.id,
       taskToUpdate,
-      helper.getLocalStorage(constant.TOKEN, "")
+      helper.getLocalStorage(constant.TOKEN, ""),
     );
     queryClient.invalidateQueries({ queryKey: ["tasks"] });
   };
@@ -71,14 +71,14 @@ const Task = ({ task }: { task: TaskModel }) => {
 
   return (
     <div
-      className="bg-secondary rounded-lg p-2 flex flex-col gap-1"
+      className="flex flex-col gap-1 rounded-lg bg-secondary p-2"
       ref={setNodeRef}
       style={style}
       {...attributes}
       {...listeners}
     >
-      <div className=" flex justify-between gap-2">
-        <h1 className="font-bold ">{task.name}</h1>
+      <div className="flex justify-between gap-2">
+        <h1 className="font-bold">{task.name}</h1>
         <p className="text-sm font-semibold">{helper.formatDate(task.date)}</p>
       </div>
       <p
@@ -87,8 +87,8 @@ const Task = ({ task }: { task: TaskModel }) => {
         }}
         ref={descriptionRef}
         className={helper.cn(
-          "whitespace-pre-line px-2 text-black text-opacity-60 break-words line-clamp-3",
-          { "line-clamp-none": expand }
+          "line-clamp-3 whitespace-pre-line break-words px-2 text-black text-opacity-60",
+          { "line-clamp-none": expand },
         )}
       >
         {task.description}
@@ -142,7 +142,7 @@ const Icon = ({
 
   return (
     <button
-      className="w-6 flex justify-center"
+      className="flex w-6 justify-center"
       onClick={handleClick}
       disabled={loading}
     >
@@ -153,7 +153,7 @@ const Icon = ({
 
 const Spinner = () => {
   return (
-    <div className="animate-spin rounded-full h-5 w-5 border-2 border-secondary/60 border-t-primary"></div>
+    <div className="border-secondary/60 h-5 w-5 animate-spin rounded-full border-2 border-t-primary"></div>
   );
 };
 

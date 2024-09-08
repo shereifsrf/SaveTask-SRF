@@ -2,7 +2,6 @@ import { useInfiniteQuery } from "@tanstack/react-query";
 import { TaskModel, TaskStatus } from "@/model/task";
 import { constant } from "@/util/constant";
 import { helper } from "@/util/helper";
-import { redirect } from "next/navigation";
 import { ApiError } from "@/model/error";
 
 const taskApi = process.env.NEXT_PUBLIC_TASK_API_URL;
@@ -26,7 +25,7 @@ const useQueryTasks = (limit: number, status: TaskStatus | undefined) => {
       if (!response.ok)
         throw new ApiError(
           response.status,
-          `Failed to fetch tasks: ${response.statusText}`
+          `Failed to fetch tasks: ${response.statusText}`,
         );
 
       let data = await response.json();

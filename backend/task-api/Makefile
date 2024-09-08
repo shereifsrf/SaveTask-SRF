@@ -119,7 +119,7 @@ curl-add:
 	curl -X POST $(DOMAIN)/api/task \
 	-H "Content-Type: application/json" \
 	-H "Authorization: Bearer $(Authorization)" \
-	-d '{"name":"task3","description":"description1","status":"pending"}'
+	-d '{"name":"task6","description":"description1","status":"pending"}'
 
 curl-list:
 	curl -X GET $(DOMAIN)/api/task?userId=35 \

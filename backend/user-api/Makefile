@@ -121,7 +121,7 @@ Authorization := "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MzYsInJvbGUiOiJhZ
 curl-add:
 	curl -X POST $(DOMAIN)/api/user \
 		-H "Content-Type: application/json" \
-		-d '{"username": "tester1", "password": "password", "role": "admin"}'
+		-d '{"username": "tester2.1", "password": "password", "role": "admin"}'
 
 curl-list:
 	curl -iX GET $(DOMAIN)/api/user -H "Authorization: Bearer $(Authorization)"
