@@ -112,17 +112,17 @@ exec:
 DOMAIN := http://localhost:8001
 # DOMAIN := https://savetask.shereif.com
 # admin
-Authorization := "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InRlc3RlcjEiLCJyb2xlIjoiYWRtaW4iLCJpc3MiOiJhdXRoLXNlcnZpY2UiLCJhdWQiOlsiYXV0aC1zZXJ2aWNlIl0sImV4cCI6MTcyNjE1NDAyNn0.O-hn_rAhsZkgAn0isHnVHNqKu332RgALtH0ZgfDwZRc"
+Authorization := "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MzYsInJvbGUiOiJhZG1pbiIsImlzcyI6ImF1dGgtc2VydmljZSIsImF1ZCI6WyJhdXRoLXNlcnZpY2UiXSwiZXhwIjoxNzI2MzgxNDI1fQ.mfU95VszjS00_7amjEySB9edgBlO_Wx8p0AUw_zmHNw"
 # user
-# Authorization := "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InRlc3RlciIsInJvbGUiOiJ1c2VyIiwiaXNzIjoiYXV0aC1zZXJ2aWNlIiwiYXVkIjpbImF1dGgtc2VydmljZSJdLCJleHAiOjE3MjYyMTgzNzV9.OiSrax2lrL3B-XBm_4fCp0SwAClwCkzYmW5GMl8ZUsw"
+# Authorization := "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MzUsInJvbGUiOiJ1c2VyIiwiaXNzIjoiYXV0aC1zZXJ2aWNlIiwiYXVkIjpbImF1dGgtc2VydmljZSJdLCJleHAiOjE3MjYzNzkyNjh9.WMGEnPFBW2Ap3BT8uRorjwTY39foQNbnULKy39Bdno4"
 curl-add:
 	curl -X POST $(DOMAIN)/api/task \
 	-H "Content-Type: application/json" \
 	-H "Authorization: Bearer $(Authorization)" \
-	-d '{"name":"task2","description":"description1","status":"pending"}'
+	-d '{"name":"task3","description":"description1","status":"pending"}'
 
 curl-list:
-	curl -X GET $(DOMAIN)/api/task?username=tester \
+	curl -X GET $(DOMAIN)/api/task?userId=35 \
 	-H "Authorization: Bearer $(Authorization)"
 
 curl-update:

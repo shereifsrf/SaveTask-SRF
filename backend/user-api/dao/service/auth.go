@@ -43,8 +43,8 @@ func (s *authService) GenerateToken(user model.User) (string, error) {
 	expiry := time.Now().Add(time.Second * time.Duration(common.Env.JWT_EXPIRE))
 	audience := jwt.ClaimStrings{common.Env.JWT_AUDIENCE}
 	claims := &model.Jwt{
-		Username: user.Username,
-		Role:     user.Role,
+		ID:   user.ID,
+		Role: user.Role,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(expiry),
 			Issuer:    common.Env.JWT_ISSUER,
@@ -77,15 +77,14 @@ func (s *authService) ValidateToken(token string, needUInfo bool) (*model.User, 
 
 	// check if the user exist
 	if needUInfo {
-		user, err := s.us.Get(0, &claims.Username)
+		user, err := s.us.Get(&claims.ID, nil)
 		if err != nil {
 			return nil, err
 		}
 		return user, nil
 	}
 
-	return &model.User{Username: claims.Username, Role: claims.Role}, nil
-
+	return &model.User{ID: claims.ID, Role: claims.Role}, nil
 }
 
 func (s *authService) generateSalt() ([]byte, error) {

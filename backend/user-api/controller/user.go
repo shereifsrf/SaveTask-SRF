@@ -55,7 +55,7 @@ func (c *userController) authorize(ctx *gin.Context, roles []model.Role, id *uin
 		return nil, false
 	}
 
-	if id != nil && *id != loggedUser.ID {
+	if id == nil || id != &loggedUser.ID {
 		ctx.JSON(http.StatusForbidden, gin.H{"error": common.WithFnName("Forbidden for user")})
 		return nil, false
 	}
@@ -63,7 +63,7 @@ func (c *userController) authorize(ctx *gin.Context, roles []model.Role, id *uin
 	return loggedUser, true
 }
 
-func (c *userController) getUserBy(ctx *gin.Context, id *uint64, username *string) (*model.User, error) {
+func (c *userController) getUserBy(ctx *gin.Context, id *string, username *string) (*model.User, error) {
 	var (
 		userId uint64
 		user   *model.User
@@ -78,9 +78,9 @@ func (c *userController) getUserBy(ctx *gin.Context, id *uint64, username *strin
 	}
 
 	if username != nil {
-		user, err = c.us.Get(0, username)
+		user, err = c.us.Get(nil, username)
 	} else {
-		user, err = c.us.Get(userId, nil)
+		user, err = c.us.Get(&userId, nil)
 	}
 	if err != nil {
 		return nil, err

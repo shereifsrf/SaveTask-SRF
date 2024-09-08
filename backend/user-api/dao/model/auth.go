@@ -3,8 +3,8 @@ package model
 import "github.com/golang-jwt/jwt/v5"
 
 type Jwt struct {
-	Username string `json:"username"`
-	Role     Role   `json:"role"`
+	ID   uint64 `json:"id"`
+	Role Role   `json:"role"`
 	jwt.RegisteredClaims
 }
 

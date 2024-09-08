@@ -29,7 +29,7 @@ func (c *authController) login(ctx *gin.Context) {
 		return
 	}
 
-	user, err := c.us.Get(0, &ul.Username)
+	user, err := c.us.Get(nil, &ul.Username)
 	if err != nil {
 		ctx.JSON(400, gin.H{"error": err.Error()})
 		return
@@ -50,11 +50,17 @@ func (c *authController) login(ctx *gin.Context) {
 }
 
 func (c *authController) verify(ctx *gin.Context) {
-	user, ok := ctx.Get(common.UserData)
+	lgdUser, ok := ctx.Get(common.UserData)
 	if !ok {
 		ctx.JSON(400, gin.H{"error": "User not found"})
 		return
 	}
 
-	ctx.JSON(200, user)
+	user, ok := lgdUser.(*model.User)
+	if !ok {
+		ctx.JSON(400, gin.H{"error": "User model not valid"})
+		return
+	}
+
+	ctx.JSON(200, gin.H{"id": user.ID, "role": user.Role})
 }

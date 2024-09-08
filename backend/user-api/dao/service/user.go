@@ -9,7 +9,7 @@ import (
 
 type IUser interface {
 	List() ([]model.User, error)
-	Get(id uint64, username *string) (*model.User, error)
+	Get(id *uint64, username *string) (*model.User, error)
 	Add(user model.User) (model.User, error)
 	Update(user *model.User) (*model.User, error)
 	Delete(id uint64) error
@@ -31,16 +31,16 @@ func (s *userService) List() ([]model.User, error) {
 	return users, err
 }
 
-func (s *userService) Get(id uint64, username *string) (*model.User, error) {
+func (s *userService) Get(id *uint64, username *string) (*model.User, error) {
 	// if username if passed, then check with username, otherwise id
 	var (
 		user model.User
 		err  error
 	)
-	if username != nil {
-		err = s.db.Where("username = ?", username).First(&user).Error
-	} else {
+	if id != nil {
 		err = s.db.First(&user, id).Error
+	} else {
+		err = s.db.Where("username = ?", username).First(&user).Error
 	}
 
 	return &user, err

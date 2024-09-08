@@ -15,7 +15,7 @@ type Task struct {
 	Date        time.Time           `bson:"date" json:"date"`
 	Status      Enum_Status         `bson:"status" json:"status"`
 	Order       float64             `bson:"order" json:"order"`
-	Username    string              `bson:"username" json:"username"`
+	UserId      uint64              `bson:"userId" json:"userId"`
 }
 
 type Enum_Status string
@@ -26,10 +26,10 @@ const (
 )
 
 type ListTaskQuery struct {
-	Page     int         `form:"page"`
-	Limit    int         `form:"limit"`
-	Status   Enum_Status `form:"status"`
-	Username *string     `form:"username"`
+	Page   int         `form:"page"`
+	Limit  int         `form:"limit"`
+	Status Enum_Status `form:"status"`
+	UserId uint64      `form:"userId"`
 }
 
 func IsEnum_Status(s string) bool {

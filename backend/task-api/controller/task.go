@@ -32,29 +32,33 @@ func SetupTaskController(router *gin.RouterGroup, us service.IUserApi) {
 	}
 }
 
-func (t *taskController) authorize(ctx *gin.Context, username *string) *string {
+func (t *taskController) authorize(ctx *gin.Context, id *uint64) *uint64 {
 	lgdUser, ok := ctx.Get(common.UserData)
 	if !ok {
-		ctx.JSON(http.StatusForbidden, gin.H{"error": "Forbidden"})
+		ctx.JSON(http.StatusForbidden, gin.H{"error": "token is invalid"})
 		return nil
 	}
 
 	user, ok := lgdUser.(*model.User)
 	if !ok {
+		ctx.JSON(http.StatusForbidden, gin.H{"error": "user model is invalid"})
+		return nil
+	}
+
+	if id == nil || *id == 0 {
+		return &user.ID
+	}
+
+	if user.Role == string(model.Role_ADMIN) {
+		return id
+	}
+
+	if id != &user.ID {
 		ctx.JSON(http.StatusForbidden, gin.H{"error": "Forbidden"})
 		return nil
 	}
 
-	if username != nil && *username != "" {
-		if user.Role == string(model.Role_ADMIN) {
-			return username
-		} else if *username != user.Username {
-			ctx.JSON(http.StatusForbidden, gin.H{"error": "Forbidden"})
-			return nil
-		}
-	}
-
-	return &user.Username
+	return id
 }
 
 func (t *taskController) listTask(c *gin.Context) {
@@ -63,11 +67,11 @@ func (t *taskController) listTask(c *gin.Context) {
 		c.JSON(400, gin.H{"error": err.Error()})
 	}
 
-	username := t.authorize(c, query.Username)
-	if username == nil {
+	userId := t.authorize(c, &query.UserId)
+	if userId == nil {
 		return
 	}
-	query.Username = username
+	query.UserId = *userId
 
 	if query.Limit == 0 {
 		query.Limit = 10
@@ -102,7 +106,7 @@ func (t *taskController) getTask(c *gin.Context) {
 		return
 	}
 
-	username := t.authorize(c, &task.Username)
+	username := t.authorize(c, &task.UserId)
 	if username == nil {
 		return
 	}
@@ -117,8 +121,8 @@ func (t *taskController) addTask(c *gin.Context) {
 		return
 	}
 
-	username := t.authorize(c, &task.Username)
-	if username == nil {
+	userId := t.authorize(c, &task.UserId)
+	if userId == nil {
 		return
 	}
 
@@ -128,7 +132,7 @@ func (t *taskController) addTask(c *gin.Context) {
 	}
 	// add order as timestamp
 	task.Order = float64(time.Now().Unix())
-	task.Username = *username
+	task.UserId = *userId
 
 	err := t.ts.AddTask(c, task)
 	if err != nil {
@@ -170,8 +174,8 @@ func (t *taskController) updateTask(c *gin.Context) {
 		return
 	}
 
-	username := t.authorize(c, &oldTask.Username)
-	if username == nil {
+	userId := t.authorize(c, &oldTask.UserId)
+	if userId == nil {
 		return
 	}
 
@@ -181,6 +185,7 @@ func (t *taskController) updateTask(c *gin.Context) {
 	}
 
 	task.ID = &taskID
+	task.UserId = *userId
 
 	err = t.ts.UpdateTask(c, task)
 	if err != nil {
@@ -210,8 +215,8 @@ func (t *taskController) deleteTask(c *gin.Context) {
 		return
 	}
 
-	username := t.authorize(c, &task.Username)
-	if username == nil {
+	userId := t.authorize(c, &task.UserId)
+	if userId == nil {
 		return
 	}
 

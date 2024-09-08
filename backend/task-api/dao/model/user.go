@@ -1,8 +1,8 @@
 package model
 
 type User struct {
-	Username string
-	Role     string `json:"role"`
+	ID   uint64 `json:"id"`
+	Role string `json:"role"`
 }
 
 type Role string

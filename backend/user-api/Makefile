@@ -115,9 +115,9 @@ docker-pull:
 # Curl Commands
 DOMAIN := http://localhost:8002
 # admin
-# Authorization := "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InRlc3RlcjEiLCJyb2xlIjoiYWRtaW4iLCJpc3MiOiJhdXRoLXNlcnZpY2UiLCJhdWQiOlsiYXV0aC1zZXJ2aWNlIl0sImV4cCI6MTcyNjE1NDAyNn0.O-hn_rAhsZkgAn0isHnVHNqKu332RgALtH0ZgfDwZRc"
+Authorization := "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MzYsInJvbGUiOiJhZG1pbiIsImlzcyI6ImF1dGgtc2VydmljZSIsImF1ZCI6WyJhdXRoLXNlcnZpY2UiXSwiZXhwIjoxNzI2MzgxNDI1fQ.mfU95VszjS00_7amjEySB9edgBlO_Wx8p0AUw_zmHNw"
 # user
-Authorization := "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InRlc3RlciIsInJvbGUiOiJ1c2VyIiwiaXNzIjoiYXV0aC1zZXJ2aWNlIiwiYXVkIjpbImF1dGgtc2VydmljZSJdLCJleHAiOjE3MjYyMTgzNzV9.OiSrax2lrL3B-XBm_4fCp0SwAClwCkzYmW5GMl8ZUsw"
+# Authorization := "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MzUsInJvbGUiOiJ1c2VyIiwiaXNzIjoiYXV0aC1zZXJ2aWNlIiwiYXVkIjpbImF1dGgtc2VydmljZSJdLCJleHAiOjE3MjYzNzkyNjh9.WMGEnPFBW2Ap3BT8uRorjwTY39foQNbnULKy39Bdno4"
 curl-add:
 	curl -X POST $(DOMAIN)/api/user \
 		-H "Content-Type: application/json" \
@@ -140,7 +140,7 @@ curl-delete:
 curl-login:
 	curl -iX POST $(DOMAIN)/api/auth/login \
 		-H "Content-Type: application/json" \
-		-d '{"username": "tester", "password": "password"}'
+		-d '{"username": "tester1", "password": "password"}'
 
 curl-verify:
 	curl -iX GET $(DOMAIN)/api/auth/verify -H "Authorization: Bearer $(Authorization)"
