@@ -17,7 +17,7 @@ const Input = forwardRef<HTMLInputElement | HTMLTextAreaElement, InputProps>(
       <div className="flex w-full flex-col justify-center">
         {multiline ? (
           <textarea
-            className={helper.cn(props.className, twClass)}
+            className={helper.cn(twClass, props.className)}
             {...props}
             ref={ref as React.Ref<HTMLTextAreaElement>}
           />

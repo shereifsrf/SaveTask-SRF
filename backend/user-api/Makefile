@@ -115,8 +115,8 @@ docker-pull:
 
 
 # Curl Commands
-# DOMAIN := http://localhost:8002
-DOMAIN := http://savetask.shereif-test.com
+DOMAIN := http://localhost:8002
+# DOMAIN := http://savetask.shereif-test.com
 # admin
 Authorization := "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MzYsInJvbGUiOiJhZG1pbiIsImlzcyI6ImF1dGgtc2VydmljZSIsImF1ZCI6WyJhdXRoLXNlcnZpY2UiXSwiZXhwIjoxNzI2MzgxNDI1fQ.mfU95VszjS00_7amjEySB9edgBlO_Wx8p0AUw_zmHNw"
 # user
@@ -124,7 +124,7 @@ Authorization := "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MzYsInJvbGUiOiJhZ
 curl-add:
 	curl -LX POST $(DOMAIN)/api/user \
 		-H "Content-Type: application/json" \
-		-d '{"username": "tester2.2", "password": "password", "role": "user"}' -k
+		-d '{"username": "tesTer22", "password": "password", "role": "user"}' -k
 
 curl-list:
 	curl -iX GET $(DOMAIN)/api/user -H "Authorization: Bearer $(Authorization)"

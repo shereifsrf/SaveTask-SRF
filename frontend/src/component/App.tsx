@@ -66,11 +66,11 @@ function TaskProvider({ children }: { children: React.ReactNode }) {
 const AppClient = () => {
   return (
     <QueryClientProvider client={queryClient}>
-      <div className="sm:flex-row flex w-full flex-col gap-x-2 gap-y-4">
-        <div className="sm:w-1/3 flex justify-center">
+      <div className="flex w-full flex-col gap-x-2 gap-y-4 sm:flex-row">
+        <div className="flex justify-center sm:w-1/3">
           <TaskForm />
         </div>
-        <div className="sm:w-full flex flex-col gap-2 overflow-hidden">
+        <div className="flex flex-col gap-2 overflow-hidden sm:w-full">
           <div className="flex justify-center p-1">
             <TaskStatuses />
           </div>

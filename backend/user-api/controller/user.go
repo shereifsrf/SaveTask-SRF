@@ -3,7 +3,9 @@ package controller
 import (
 	"fmt"
 	"net/http"
+	"regexp"
 	"strconv"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/shereifsrf/SaveTask-SRF/user-api/common"
@@ -117,11 +119,22 @@ func (c *userController) getUser(ctx *gin.Context) {
 	ctx.JSON(200, user)
 }
 
+func (c *userController) validateUsername(username string) bool {
+	var validUsername = regexp.MustCompile(`^[a-zA-Z0-9_]+$`)
+
+	return validUsername.MatchString(username)
+}
+
 func (c *userController) addUser(ctx *gin.Context) {
 	var user model.User
 	err := ctx.BindJSON(&user)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	if !c.validateUsername(user.Username) {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Username must be alphanumeric and underscore"})
 		return
 	}
 
@@ -148,6 +161,7 @@ func (c *userController) addUser(ctx *gin.Context) {
 
 	user.Password = hash
 	user.PasswordSalt = salt
+	user.Username = strings.ToLower(user.Username)
 
 	user.IsActive = true
 	user, err = c.us.Add(user)
@@ -171,6 +185,11 @@ func (c *userController) updateUser(ctx *gin.Context) {
 		return
 	}
 
+	if !c.validateUsername(user.Username) {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Username must be alphanumeric and underscore"})
+		return
+	}
+
 	exUser, err := c.getUserBy(ctx, nil, nil)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -183,7 +202,7 @@ func (c *userController) updateUser(ctx *gin.Context) {
 	}
 
 	if user.Username != "" {
-		exUser.Username = user.Username
+		exUser.Username = strings.ToLower(user.Username)
 	}
 	if user.Password != "" {
 		hash, salt, err := c.auth.GenerateHashSalt(user.Password, nil)

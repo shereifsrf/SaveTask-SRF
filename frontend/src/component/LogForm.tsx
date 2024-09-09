@@ -3,9 +3,9 @@
 import { LogFormAction } from "@/model/enum";
 import { helper } from "@/util/helper";
 import { zodResolver } from "@hookform/resolvers/zod";
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { useForm } from "react-hook-form";
-import { boolean, z } from "zod";
+import { z, ZodSchema } from "zod";
 import Input from "@/component/form/Input";
 import Button from "@/component/form/Button";
 import ResetIcon from "@/icon/ResetIcon";
@@ -14,18 +14,36 @@ import { useRouter } from "next/navigation";
 import { userLogin, userRegister } from "@/action/server/user";
 import { ApiResponse } from "@/model/response";
 import { RegisterModel, UserModel } from "@/model/user";
+import toast from "react-hot-toast";
 
-const LogFormSchema = z.object({
-  username: z.string().min(5),
+const LoginSchema = z.object({
+  username: z.string().min(6),
   password: z.string().min(6),
-  // .refine((p) => /[A-Z]/.test(p), {
-  //   message: "Password must contain at least one uppercase letter",
-  // })
-  // .refine((p) => /\d/.test(p), {
-  //   message: "Password must contain at least one digit",
-  // }),
   email: z.string().optional(),
 });
+
+const RegisterSchema = z.object({
+  username: z
+    .string()
+    .min(6)
+    .refine((u) => /^\w+$/.test(u), {
+      message: "Username must be alphanumeric and/or underscore",
+    }),
+  password: z
+    .string()
+    .min(6)
+    .refine((p) => /[A-Z]/.test(p), {
+      message: "Password must contain at least one uppercase letter",
+    })
+    .refine((p) => /\d/.test(p), {
+      message: "Password must contain at least one digit",
+    }),
+  email: z.string().email(),
+});
+
+const getSchema = (action: LogFormAction): ZodSchema => {
+  return action === LogFormAction.Login ? LoginSchema : RegisterSchema;
+};
 
 const defaultValues = {
   username: "",
@@ -33,10 +51,9 @@ const defaultValues = {
   email: "",
 };
 
-type LogFormSchemaType = z.infer<typeof LogFormSchema>;
+type LogFormSchemaType = z.infer<typeof RegisterSchema>;
 
 export default function LogForm({ action }: { action: LogFormAction }) {
-  const [errorMsg, setErrorMsg] = useState("-");
   const router = useRouter();
 
   const {
@@ -46,34 +63,25 @@ export default function LogForm({ action }: { action: LogFormAction }) {
     setError,
     formState: { errors },
   }: any = useForm<LogFormSchemaType>({
-    resolver: zodResolver(LogFormSchema),
+    resolver: zodResolver(getSchema(action)),
     defaultValues,
   });
-
-  useEffect(() => {
-    // set empty after 5 seconds
-    const timer = setTimeout(() => {
-      setErrorMsg("-");
-    }, 5000);
-
-    return () => clearTimeout(timer);
-  }, [errorMsg]);
 
   const handleLogAction = async (data: LogFormSchemaType) => {
     if (action === LogFormAction.Login) {
       const response = await userLogin(data.username, data.password);
 
       if (!ApiResponse.instanceOf<UserModel>(response)) {
-        setErrorMsg("unknown error");
+        toast.error("unknown error");
         return;
       }
       if (response.error) {
-        setErrorMsg(response.error.message);
+        toast.error(response.error.message);
         return;
       }
 
       if (!response.data || !response.data.token) {
-        setErrorMsg("unknown data error");
+        toast.error("unknown data error");
         return;
       }
 
@@ -82,11 +90,6 @@ export default function LogForm({ action }: { action: LogFormAction }) {
       return;
     }
 
-    // register
-    if (!data.email) {
-      setError("email", { message: "Email is required" });
-      return;
-    }
     const response = await userRegister(
       data.username,
       data.password,
@@ -94,22 +97,25 @@ export default function LogForm({ action }: { action: LogFormAction }) {
     );
 
     if (!ApiResponse.instanceOf<RegisterModel>(response)) {
-      setErrorMsg("unknown error");
+      toast.error("unknown error");
       return;
     }
 
     console.log(response);
 
     if (response.error) {
-      setErrorMsg(response.error.message);
+      toast.error(response.error.message);
       return;
     }
 
     if (!response.data || !response.data.ok) {
-      setErrorMsg("unknown data error");
+      toast.error("unknown data error");
       return;
     }
 
+    toast.success("Registered successfully, please login", {
+      duration: 5000,
+    });
     router.push("/login");
   };
 
@@ -162,13 +168,6 @@ export default function LogForm({ action }: { action: LogFormAction }) {
             <ResetIcon />
           </Button>
         </div>
-        <p
-          className={helper.cn("text-center text-error", {
-            "opacity-0": errorMsg === "-",
-          })}
-        >
-          {errorMsg}
-        </p>
         <Footer action={action} />
       </form>
     </div>
@@ -178,8 +177,8 @@ export default function LogForm({ action }: { action: LogFormAction }) {
 const Footer = ({ action }: { action: LogFormAction }) => {
   const router = useRouter();
 
-  const handleClick = () => {
-    router.push(action === LogFormAction.Login ? "/register" : "/login");
+  const redirectTo = (): string => {
+    return action === LogFormAction.Login ? "/register" : "/login";
   };
 
   const msg =
@@ -192,13 +191,9 @@ const Footer = ({ action }: { action: LogFormAction }) => {
   return (
     <div className="flex items-center">
       <p className="text-sm text-slate-300">{msg}&nbsp;</p>
-      <button
-        type="button"
-        onClick={handleClick}
-        className="text-white underline"
-      >
+      <a href={redirectTo()} className="text-white underline">
         {buttonText}
-      </button>
+      </a>
     </div>
   );
 };

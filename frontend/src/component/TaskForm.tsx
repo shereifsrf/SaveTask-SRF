@@ -91,7 +91,7 @@ function TaskForm() {
 
   return (
     <form
-      className="sm:w-full flex w-[15rem] flex-col gap-2"
+      className="flex w-[15rem] flex-col gap-2 sm:w-full"
       onSubmit={handleSubmit(handleSuccess, handleError)}
     >
       <Input
@@ -114,7 +114,7 @@ function TaskForm() {
       <Input
         {...register("date")}
         type="date"
-        className=""
+        className="appearance-none"
         placeholder="Date"
         error={errors.date}
       />

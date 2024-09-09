@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { constant } from "@/util/constant";
+import { Toaster } from "react-hot-toast";
 
 export const metadata: Metadata = {
   title: "SaveTask - SRF",
-  description: "A brother of SaveSpend.com",
+  description: constant.mainDescription,
 };
 
 export default function HomeLayout({
@@ -13,7 +15,10 @@ export default function HomeLayout({
 }>) {
   return (
     <html lang="en">
-      <body className="">{children}</body>
+      <body className="">
+        <Toaster position="top-right" />
+        {children}
+      </body>
     </html>
   );
 }

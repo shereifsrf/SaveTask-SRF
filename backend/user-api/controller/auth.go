@@ -1,6 +1,8 @@
 package controller
 
 import (
+	"strings"
+
 	"github.com/gin-gonic/gin"
 	"github.com/shereifsrf/SaveTask-SRF/user-api/common"
 	"github.com/shereifsrf/SaveTask-SRF/user-api/controller/middleware"
@@ -29,6 +31,7 @@ func (c *authController) login(ctx *gin.Context) {
 		return
 	}
 
+	ul.Username = strings.ToLower(ul.Username)
 	user, err := c.us.Get(nil, &ul.Username)
 	if err != nil {
 		ctx.JSON(400, gin.H{"error": err.Error()})

@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
+import { constant } from "@/util/constant";
 
 export const metadata: Metadata = {
   title: "Login to SaveTask - SRF",
-  description: "A brother of SaveSpend.com",
+  description: constant.mainDescription,
 };
 
 export default function LoginLayout({
