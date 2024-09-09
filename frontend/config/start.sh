@@ -3,7 +3,7 @@
 # reference https://phase.dev/blog/nextjs-public-runtime-variables/
 
 # Define a list of environment variables to check and replace
-VARIABLES="NEXT_PUBLIC_TASK_API_URL NEXT_PUBLIC_TASK_BACKEND_URL"
+VARIABLES="NEXT_PUBLIC_TASK_API_URL NEXT_PUBLIC_TASK_BACKEND_URL NEXT_PUBLIC_USER_API_URL NEXT_PUBLIC_USER_BACKEND_URL"
 
 echo "Starting the application..."
 

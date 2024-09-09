@@ -11,7 +11,7 @@ const (
 	DEBUG    = "debug"
 	RELEASE  = "release"
 
-	USER_API_URL  = "USER_API_URL"
-	Authorization = "Authorization"
-	UserData      = "UserData"
+	USER_BACKEND_API_URL = "USER_BACKEND_API_URL"
+	Authorization        = "Authorization"
+	UserData             = "UserData"
 )

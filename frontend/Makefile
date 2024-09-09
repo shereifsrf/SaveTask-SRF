@@ -84,7 +84,8 @@ helm-uninstall:
 helm-show:
 	helm list -n $(NS)
 	# helm get all $(HELM_NAME) -n $(NS)
-	kubectl -n $(NS) get pods,svc,pvc,pv,configmap,secret,ingress | grep task
+	kubectl -n $(NS) get svc,pvc,pv,configmap,secret,ingress,cronjob,job,deployment,pods,statefulset \
+		-l app=$(HELM_NAME)
 
 exec:
 	kubectl -n $(NS) \

@@ -4,7 +4,10 @@ metadata:
   name: {{ .Release.Name }}-config
   labels:
     app: {{ .Release.Name }}
+    chart: {{ .Chart.Name }}
 data:
-  api-url: {{ .Values.env.NEXT_PUBLIC_TASK_API_URL}}
-  backend-url: {{ .Values.env.NEXT_PUBLIC_TASK_BACKEND_URL}}
+  taskApiUrl: {{ .Values.secrets.NEXT_PUBLIC_TASK_API_URL}}
+  backendTaskUrl: {{ .Values.secrets.NEXT_PUBLIC_TASK_BACKEND_URL}}
+  userApiUrl: {{ .Values.secrets.NEXT_PUBLIC_USER_API_URL}}
+  backendUserUrl: {{ .Values.secrets.NEXT_PUBLIC_USER_BACKEND_URL}}
 

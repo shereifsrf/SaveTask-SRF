@@ -19,4 +19,3 @@ metadata:
 data:
   username: {{ .Values.secrets.username | b64enc }}
   password: {{ .Values.secrets.password | b64enc }}
-

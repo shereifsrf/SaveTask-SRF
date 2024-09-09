@@ -3,16 +3,19 @@ kind: Deployment
 metadata:
   name: {{ .Release.Name }}
   labels:
-    app: {{ .Chart.Name }}
+    app: {{ .Release.Name }}
+    chart: {{ .Chart.Name }}
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
-      app: {{ .Chart.Name }}
+      app: {{ .Release.Name }}
+      chart: {{ .Chart.Name }}
   template:
     metadata:
       labels:
-        app: {{ .Chart.Name }}
+        app: {{ .Release.Name }}
+        chart: {{ .Chart.Name }}
       annotations:
         version: {{ .Values.version }}
     spec:
@@ -26,11 +29,37 @@ spec:
               valueFrom:
                 configMapKeyRef:
                   name: {{ .Release.Name }}-config
-                  key: api-url
+                  key: taskApiUrl
             - name: NEXT_PUBLIC_TASK_BACKEND_URL
               valueFrom:
                 configMapKeyRef:
                   name: {{ .Release.Name }}-config
-                  key: backend-url
+                  key: backendTaskUrl
+            - name: NEXT_PUBLIC_USER_API_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Release.Name }}-config
+                  key: userApiUrl
+            - name: NEXT_PUBLIC_USER_BACKEND_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Release.Name }}-config
+                  key: backendUserUrl
       imagePullSecrets:
         - name: {{ .Values.image.pullSecrets.name }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}
+  labels:
+    app: {{ .Release.Name }}
+    chart: {{ .Chart.Name }}
+spec:
+  selector:
+    app: {{ .Release.Name }}
+    chart: {{ .Chart.Name }}
+  ports:
+    - protocol: TCP
+      port: {{ .Values.service.port }}
+      targetPort: {{ .Values.service.targetPort }}

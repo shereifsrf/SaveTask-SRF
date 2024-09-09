@@ -19,15 +19,6 @@ spec:
       annotations:
         version: {{ .Values.version }}
     spec:
-      initContainers:
-        - name: wait-for-mongodb
-          image: busybox:1.36
-          command: ['sh', '-c']
-          args:
-          - |
-            echo waiting for mongodb;
-            until nslookup {{ .Release.Name }}-{{ .Values.service.db }}.{{ .Values.global.namespace }}.svc.cluster.local; do echo waiting for mongodb; sleep 2; done;
-            for i in $(1 10); do echo $i; sleep 1; done;
       containers:
         - name: {{ .Chart.Name }}
           image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
@@ -38,30 +29,53 @@ spec:
               value: {{ .Values.secrets.ginMode }}
             - name: PORT
               value: {{ .Values.targetPort | quote }}
-            - name: MONGO_DB_NAME
+            - name: DB_NAME
               valueFrom:
                 configMapKeyRef:
                   name: {{ .Release.Name }}-{{ .Values.service.db }}-config
                   key: db
-            - name: MONGO_DB_HOST
+            - name: DB_HOST
               value: {{ .Release.Name }}-{{ .Values.service.db }}
-            - name: MONGO_DB_PORT
+            - name: DB_PORT
               valueFrom:
                 configMapKeyRef:
                   name: {{ .Release.Name }}-{{ .Values.service.db }}-config
                   key: port
-            - name: MONGO_DB_USER
+            - name: DB_USER
               valueFrom:
                 secretKeyRef:
                   name: {{ .Release.Name }}-{{ .Values.service.db }}-secrets
                   key: username
-            - name: MONGO_DB_PASS
+            - name: DB_PASS
               valueFrom:
                 secretKeyRef:
                   name: {{ .Release.Name }}-{{ .Values.service.db }}-secrets
                   key: password
-            - name: USER_BACKEND_API_URL
-              value: {{ .Values.secrets.userBackendApiUrl }}
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-{{ .Chart.Name }}-secrets
+                  key: jwtSecret
+            - name: JWT_ISSUER
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-{{ .Chart.Name }}-secrets
+                  key: jwtIssuer
+            - name: JWT_AUDIENCE
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-{{ .Chart.Name }}-secrets
+                  key: jwtAudience
+            - name: JWT_EXPIRE
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-{{ .Chart.Name }}-secrets
+                  key: jwtExpire
+            - name: PASS_PEPPER
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-{{ .Chart.Name }}-secrets
+                  key: passPepper
             - name: ALLOW_ORIGINS
               value: {{ .Values.secrets.allowOrigins }}
       imagePullSecrets:

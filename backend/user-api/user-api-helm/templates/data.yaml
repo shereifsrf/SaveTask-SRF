@@ -6,8 +6,7 @@ metadata:
     app: {{ .Release.Name }}
     chart: {{ .Chart.Name }}
 data:
-  port: {{ .Values.targetPort | quote }}
-  db: {{ .Values.database.name }}
+
 ---
 apiVersion: v1
 kind: Secret
@@ -17,6 +16,8 @@ metadata:
     app: {{ .Release.Name }}
     chart: {{ .Chart.Name }}
 data:
-  username: {{ .Values.secrets.username | b64enc }}
-  password: {{ .Values.secrets.password | b64enc }}
-
+  jwtSecret: {{ .Values.secrets.jwtSecret | b64enc }}
+  jwtIssuer: {{ .Values.secrets.jwtIssuer | b64enc }}
+  jwtAudience: {{ .Values.secrets.jwtAudience | b64enc }}
+  jwtExpire: {{ .Values.secrets.jwtExpire | toString | b64enc }}
+  passPepper: {{ .Values.secrets.passPepper | b64enc }}

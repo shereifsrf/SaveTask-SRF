@@ -17,7 +17,7 @@ type Environment struct {
 	MONGO_DB_PASS string
 	MONGO_DB_NAME string
 
-	USER_API_URL string
+	USER_BACKEND_API_URL string
 }
 
 func InitEnv(isDebug bool) {
@@ -37,7 +37,7 @@ func InitEnv(isDebug bool) {
 	if Env.GIN_MODE != RELEASE {
 		Env.GIN_MODE = DEBUG
 	}
-	Env.USER_API_URL = GetEnv(USER_API_URL, true)
+	Env.USER_BACKEND_API_URL = GetEnv(USER_BACKEND_API_URL, true)
 }
 
 func GetEnv(key string, required bool) string {

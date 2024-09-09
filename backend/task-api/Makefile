@@ -41,6 +41,7 @@ helm-install:
 		helm upgrade --install \
 			$(HELM_NAME) \
 			-n $(NS) \
+			-f $(HELM_DIR)/values.env.yaml \
 			$(HELM_DIR); \
 	else \
 		echo "Confim? [y/n]"; \
@@ -49,6 +50,7 @@ helm-install:
 			helm upgrade --install \
 				$(HELM_NAME) \
 				-n $(NS) \
+				-f $(HELM_DIR)/values.env.yaml \
 				-f $(HELM_DIR)/values.prod.yaml \
 				$(HELM_DIR); \
 		else \
@@ -109,8 +111,8 @@ exec:
 		exec -it $(filter-out $@,$(MAKECMDGOALS)) -- /bin/bash
 
 # Curl requests
-DOMAIN := http://localhost:8001
-# DOMAIN := https://savetask.shereif.com
+# DOMAIN := http://localhost:8001
+DOMAIN := http://savetask.shereif-test.com
 # admin
 Authorization := "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MzYsInJvbGUiOiJhZG1pbiIsImlzcyI6ImF1dGgtc2VydmljZSIsImF1ZCI6WyJhdXRoLXNlcnZpY2UiXSwiZXhwIjoxNzI2MzgxNDI1fQ.mfU95VszjS00_7amjEySB9edgBlO_Wx8p0AUw_zmHNw"
 # user

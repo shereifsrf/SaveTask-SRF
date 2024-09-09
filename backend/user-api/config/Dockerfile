@@ -7,10 +7,10 @@ RUN go mod download
 
 COPY . .
 
-RUN go build -o /go/bin/task-api
+RUN go build -o /go/bin/user-api
 
 FROM alpine:3.20
 
-COPY --from=builder /go/bin/task-api /go/bin/task-api
+COPY --from=builder /go/bin/user-api /go/bin/user-api
 
-CMD ["/go/bin/task-api"]
+CMD ["/go/bin/user-api"]

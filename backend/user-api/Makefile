@@ -1,6 +1,6 @@
 NS := srf-savetask
 HELM_DIR := user-api-helm
-HELM_NAME := taskapirelease
+HELM_NAME := userapirelease
 DOCKER_IMAGE := registry.shereif.com/srf-savetask/user-api:latest
 
 init:
@@ -54,8 +54,10 @@ helm-show:
 	# helm get all $(HELM_NAME) -n $(NS)
 	kubectl -n $(NS) get svc,pvc,pv,configmap,secret,ingress,cronjob,job,deployment,pods,statefulset \
 		-l app=$(HELM_NAME)
-		# | grep task
 
+exec:
+	kubectl -n $(NS) \
+		exec -it $(filter-out $@,$(MAKECMDGOALS)) -- /bin/sh
 ### Docker ###
 dc:
 	$(eval commands := $(filter-out $@,$(MAKECMDGOALS)))
@@ -92,7 +94,7 @@ docker-run:
 	if [ -z "$(cmd)" ]; then \
 		echo "Running docker without command"; \
 		docker run \
-			-p 8001:8001 \
+			-p 8002:8002 \
 			$(DOCKER_IMAGE); \
 	else \
 		echo "Running docker with command"; \
@@ -113,15 +115,16 @@ docker-pull:
 
 
 # Curl Commands
-DOMAIN := http://localhost:8002
+# DOMAIN := http://localhost:8002
+DOMAIN := http://savetask.shereif-test.com
 # admin
 Authorization := "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MzYsInJvbGUiOiJhZG1pbiIsImlzcyI6ImF1dGgtc2VydmljZSIsImF1ZCI6WyJhdXRoLXNlcnZpY2UiXSwiZXhwIjoxNzI2MzgxNDI1fQ.mfU95VszjS00_7amjEySB9edgBlO_Wx8p0AUw_zmHNw"
 # user
 # Authorization := "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MzUsInJvbGUiOiJ1c2VyIiwiaXNzIjoiYXV0aC1zZXJ2aWNlIiwiYXVkIjpbImF1dGgtc2VydmljZSJdLCJleHAiOjE3MjYzNzkyNjh9.WMGEnPFBW2Ap3BT8uRorjwTY39foQNbnULKy39Bdno4"
 curl-add:
-	curl -X POST $(DOMAIN)/api/user \
+	curl -LX POST $(DOMAIN)/api/user \
 		-H "Content-Type: application/json" \
-		-d '{"username": "tester2.1", "password": "password", "role": "admin"}'
+		-d '{"username": "tester2.2", "password": "password", "role": "user"}' -k
 
 curl-list:
 	curl -iX GET $(DOMAIN)/api/user -H "Authorization: Bearer $(Authorization)"

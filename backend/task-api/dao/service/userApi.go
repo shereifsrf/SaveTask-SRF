@@ -21,7 +21,7 @@ type userApi struct {
 }
 
 func (u *userApi) AuthVerify(token string) (*model.User, error) {
-	url := common.Env.USER_API_URL + "/auth/verify"
+	url := common.Env.USER_BACKEND_API_URL + "/auth/verify"
 
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {

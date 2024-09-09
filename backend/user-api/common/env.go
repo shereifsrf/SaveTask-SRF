@@ -44,8 +44,7 @@ func InitEnv(isDebug bool) {
 	Env.JWT_AUDIENCE = GetEnv(JWT_AUDIENCE, true)
 	jwtExpire := GetEnv(JWT_EXPIRE, true)
 	if expire, err := strconv.ParseUint(jwtExpire, 10, 64); err != nil {
-		Log.Fatalf("Error loading env %v",
-			JWT_EXPIRE)
+		Log.Fatalf("Error loading env %v with value %v", JWT_EXPIRE, jwtExpire)
 	} else {
 		Env.JWT_EXPIRE = expire
 	}

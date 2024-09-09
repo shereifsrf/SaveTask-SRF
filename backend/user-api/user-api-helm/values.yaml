@@ -1,0 +1,54 @@
+version: "1.0.1"
+
+imagePullSecrets: 
+  name: regcred
+
+replicaCount: 1
+targetPort: 8002
+
+image:
+  repository: registry.shereif.com/srf-savetask/user-api
+  tag: latest
+
+secrets: 
+  jwtSecret: somesecretkey
+  jwtIssuer: auth-service
+  jwtAudience: auth-service
+  jwtExpire: 604800
+  passPepper: somepepperhere
+  ginMode: release
+  allowOrigins: http://localhost:3000,http://localhost:3001
+
+global:
+  volume:
+    path: /mnt/srf-savetask
+    storageClassName: srf-savetask-storage
+  dbVolume:
+    pv: savetask-user-api-pv
+    pvc: user-api-pvc
+    size: 5Gi
+    values:
+      - minikube
+
+service:
+  db: user-pgdb
+
+user-pgdb:
+  database:
+    name: user-api-db
+
+  targetPort: 5432
+
+  replicaCount: 1
+  
+  image:
+    name: postgres
+    tag: 16.4
+
+  secrets:
+    username: user-api-db-admin
+    password: Anythingherewilldo
+
+  dbVolume:
+    name: postgres-data
+    path: /var/lib/postgresql/data

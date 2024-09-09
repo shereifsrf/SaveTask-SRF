@@ -4,8 +4,9 @@ metadata:
   name: {{ .Release.Name }}-config
   labels:
     app: {{ .Release.Name }}
+    chart: {{ .Chart.Name }}
 data:
-  api-port: {{ .Values.service.targetPort | quote }}
+
 ---
 apiVersion: v1
 kind: Secret
@@ -13,5 +14,5 @@ metadata:
   name: {{ .Release.Name }}-secrets
   labels:
     app: {{ .Release.Name }}
+    chart: {{ .Chart.Name }}
 data:
-  admin-pass-must-remove: {{ .Values.env.ADMIN_PASS_MUST_REMOVE | b64enc }}

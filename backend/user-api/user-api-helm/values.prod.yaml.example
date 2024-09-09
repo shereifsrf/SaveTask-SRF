@@ -1,0 +1,17 @@
+global:
+  dbVolume:
+    values:
+      - lke180802-261973-3aa6a2000000
+
+secrets: 
+  jwtSecret: somesecretkey
+  jwtIssuer: auth-service
+  jwtAudience: auth-service
+  jwtExpire: 604800
+  passPepper: somepepperhere
+  allowOrigins: http://localhost:3000,http://localhost:3001
+
+user-pgdb:
+  secrets:
+    username: user-api-db-admin
+    password: Anythingherewilldo

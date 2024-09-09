@@ -1,9 +1,18 @@
 replicaCount: 1
 version: "1.0.7"
 
+targetPort: 8001
+
+service:
+  db: task-mongodb
+
+secrets:
+  ginMode: release
+  userBackendApiUrl: 
+  allowOrigins: http://localhost:3000,http://localhost:3001
+
 global:
   namespace: srf-savetask
-  mode: release
   volume:
     path: /mnt/srf-savetask
     storageClassName: srf-savetask-storage
@@ -13,23 +22,20 @@ global:
     size: 5Gi
     values:
       - minikube
-  backup:
-    # everyday at 10 am
-    full:
-      schedule: "0 10 * * *"
-    # hourly
-    incremental:
-      schedule: "0 * * * *"
-    volume:
-      name: task-api-backup
-      pv: task-api-backup-pv
-      pvc: task-api-backup-pvc
-      size: 5Gi
-      values:
-        - minikube
-
-env:
-  ADMIN_PASS_MUST_REMOVE: something
+  # backup:
+  #   # everyday at 10 am
+  #   full:
+  #     schedule: "0 10 * * *"
+  #   # hourly
+  #   incremental:
+  #     schedule: "0 * * * *"
+  #   volume:
+  #     name: task-api-backup
+  #     pv: task-api-backup-pv
+  #     pvc: task-api-backup-pvc
+  #     size: 5Gi
+  #     values:
+  #       - minikube
 
 image:
   repository: registry.shereif.com/srf-savetask/task-api
@@ -38,16 +44,11 @@ image:
 imagePullSecrets:
   name: regcred
 
-service:
-  targetPort: 8001
-
 task-mongodb:
   replicaCount: 1
 
   database:
     name: task-db
-    initdb:
-      filename: mongo-init.js
 
   dbVolume:
     name: mongodb-data
@@ -58,27 +59,9 @@ task-mongodb:
   secrets:
     username: task-api-mongodb-admin
     password: someweirdpass
-    securityKey: |
-      xA48J7+qwmWb2eVdbvvwJ74ExofWZU6fCexndDCP/i+g7IzBu9KZreV51widMkyu
-      ia5CVuGG/AGQkbqTKLPTU+gnD8UCmf37AWRp2g82QlCnBFYkJ8H/zHwwG7Oe35Xb
-      5SS7XnT/shQ+FDt4iUctfKaXxIeqoq90Z0d5APelly1NmzZqf6UMHlnyGmAxNMDb
-      Fm/bKNlZC8zlJDLssdCPf2ZjkXZNdqAD01fp+0IEzATq6SnGdCDpC7DYYgo1P75u
-      Q45uTWb2yCQaTXXZCAGHwLlNwIHaw35fDEXzyNcbOATWDsok6vw90sOcZi/nRBI0
-      DEcV8sj71+NgoCP2e8qWI6+OZbUMsBh8fsDiwyB8+17NqGlq/m0nSqYJWT4miiyx
-      qjK8X5CF12/AkjycLSGrYFpRILqBJzXVK68FnifT7XFRLpj7H6qOYLtLox8DxVqC
-      RxHT2me9dS6Tji0bI7W2/P0fXvfne3yX0JEwc6Iuhb0y2Kr8WjboGfUNo1GHrp5c
-      QcnjhiylXK5Mgll0kciFH74uucG65fB9Qo6h4VxJJj/pYBl8oxgAk/VtkO82U7CZ
-      oCXW4qqjtdDTT+F8JUH6thOgGMM7yBtIxTYlWDbf/qbxgu6Rl1obaz3VXWZDRygl
-      LlZ+JwCGcEMoNqoeMLR7oVyOeVbFoAH3kICc0fK3CXM35u6HjlS7bZVugfKfpBGA
-      xFbNq9k5UV5KBaiifEPRu0ptaMZSDQX/SvBM5GlsucgjjlvyXV8SbEtoBUpQ0TUL
-      0n89aCwCgezUs5mleQ4OytBbtFkEnrc11BuR/4e3+h2ZG9MJSsTVx6POee4+bU8A
-      tlpuMryW3pO98IPFQKpXk9XQGieCBFElXf0Kfsgel12n7TxIB7edWhipDiQTDayo
-      nnGm8pLwtjYw8T3Iq82QXAhaZED2OcqLwDRl70NVS7v4H3tgR+Ci4k6ZrG8MhgXw
-      PT6iV8J9GeafJip2M4wX8agrI5X9rdppdGqYJAjgHcTGmIny
 
   image:
     name: mongo
     tag: latest
 
-  service:
-    targetPort: 27017
+  targetPort: 27017

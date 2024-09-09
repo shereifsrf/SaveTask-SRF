@@ -29,6 +29,8 @@ COPY . .
 
 ARG NEXT_PUBLIC_TASK_API_URL=SAVETASK_NEXT_PUBLIC_TASK_API_URL
 ARG NEXT_PUBLIC_TASK_BACKEND_URL=SAVETASK_NEXT_PUBLIC_TASK_BACKEND_URL
+ARG NEXT_PUBLIC_USER_API_URL=SAVETASK_NEXT_PUBLIC_USER_API_URL
+ARG NEXT_PUBLIC_USER_BACKEND_URL=SAVETASK_NEXT_PUBLIC_USER_BACKEND_URL
 
 RUN \
     if [ -f yarn.lock ]; then yarn run build; \
@@ -52,7 +54,7 @@ RUN adduser --system --uid 1001 nextjs
 COPY --from=builder /app/config/start.sh /app/scripts/start.sh
 RUN chmod +x /app/scripts/start.sh
 
-COPY --from=builder /app/public ./public
+# COPY --from=builder /app/public ./public
 
 # Set the correct permission for prerender cache
 RUN mkdir .next
